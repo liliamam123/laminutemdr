@@ -1,0 +1,1355 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#100b12">
+  <meta name="description" content="LaMinuteMDR (LMM) : mini-jeux gaming, solveur de Rubik's Cube et assistant local.">
+  <title>LaMinuteMDR — Le coin gaming</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #100b12;
+      --panel: #19131d;
+      --panel-light: #241a27;
+      --text: #fff9f3;
+      --muted: #b9abbc;
+      --orange: #ff762e;
+      --yellow: #ffd65a;
+      --red: #ff435d;
+      --line: rgba(255, 177, 80, .18);
+      --glow: 0 0 36px rgba(255, 106, 26, .17);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 82% 0%, rgba(255, 67, 93, .12), transparent 34rem),
+        radial-gradient(ellipse at 4% 28%, rgba(255, 118, 46, .09), transparent 32rem),
+        linear-gradient(180deg, #100b12, #0d0a11 72%);
+      color: var(--text);
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    a { color: inherit; }
+    button { font: inherit; }
+    .wrap { width: min(1120px, calc(100% - 36px)); margin-inline: auto; }
+    .topbar {
+      position: sticky;
+      z-index: 5;
+      top: 0;
+      border-bottom: 1px solid var(--line);
+      background: rgba(16, 11, 18, .82);
+      backdrop-filter: blur(14px);
+    }
+    .nav { min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 900; letter-spacing: -.04em; }
+    .brand-mark {
+      display: grid; width: 38px; height: 38px; place-items: center;
+      border: 1px solid rgba(255, 212, 71, .7); border-radius: 12px;
+      color: var(--yellow); background: #21130f; box-shadow: 0 0 18px rgba(255, 106, 26, .2);
+      font-size: 13px;
+    }
+    .brand-name { font-size: 18px; }
+    .brand-name span { color: var(--orange); }
+    .nav-links { display: flex; gap: 22px; align-items: center; }
+    .nav-links a { color: var(--muted); font-size: 14px; text-decoration: none; transition: color .2s; }
+    .nav-links a:hover, .nav-links a:focus-visible { color: var(--yellow); }
+    .menu-button { display: none; border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 9px; padding: 8px 11px; }
+
+    .hero { display: grid; grid-template-columns: 1.15fr .85fr; align-items: center; gap: 42px; padding-block: 96px 84px; }
+    .eyebrow { color: var(--yellow); font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { max-width: 700px; margin: 14px 0 18px; font-size: clamp(42px, 7vw, 76px); line-height: .98; letter-spacing: -.065em; }
+    h1 span { color: var(--orange); text-shadow: 0 0 24px rgba(255, 106, 26, .4); }
+    .hero p { max-width: 560px; margin: 0; color: var(--muted); font-size: 18px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 46px; padding: 0 18px; border: 1px solid transparent; border-radius: 12px;
+      color: #1b0e08; background: linear-gradient(110deg, var(--yellow), var(--orange));
+      box-shadow: 0 0 22px rgba(255, 106, 26, .2); font-weight: 850; text-decoration: none;
+      cursor: pointer; transition: transform .18s, filter .18s;
+    }
+    .button:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .button.secondary { color: var(--text); background: var(--panel); border-color: var(--line); box-shadow: none; }
+    .hero-art {
+      position: relative; display: grid; min-height: 330px; place-items: center;
+      border: 1px solid rgba(255, 106, 26, .28); border-radius: 30px;
+      background: linear-gradient(145deg, rgba(255, 106, 26, .12), rgba(255, 53, 72, .07) 45%, rgba(255, 212, 71, .06));
+      box-shadow: var(--glow); overflow: hidden;
+    }
+    .hero-art::before, .hero-art::after { content: ""; position: absolute; width: 220px; height: 220px; border: 1px solid rgba(255, 212, 71, .17); border-radius: 50%; }
+    .hero-art::after { width: 290px; height: 290px; }
+    .cube { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; transform: rotate(-9deg); }
+    .cube i { width: clamp(45px, 7vw, 67px); aspect-ratio: 1; border-radius: 9px; border: 2px solid #120e12; background: var(--orange); box-shadow: inset 0 0 14px rgba(255,255,255,.25), 0 0 16px rgba(255, 106, 26, .28); }
+    .cube i:nth-child(2), .cube i:nth-child(5), .cube i:nth-child(7) { background: var(--yellow); }
+    .cube i:nth-child(3), .cube i:nth-child(6) { background: var(--red); }
+    .floating-tag { position: absolute; right: 7%; bottom: 10%; padding: 9px 13px; border: 1px solid var(--line); border-radius: 10px; background: rgba(11,9,13,.85); color: var(--yellow); font-size: 13px; font-weight: 800; }
+
+    section { scroll-margin-top: 90px; }
+    .section { padding-block: 52px 76px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+    .section-head h2 { margin: 5px 0 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.04em; }
+    .section-head p { max-width: 440px; margin: 0; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card { border: 1px solid var(--line); border-radius: 22px; background: linear-gradient(145deg, rgba(36,26,39,.88), rgba(22,16,25,.96)); box-shadow: 0 16px 42px rgba(0,0,0,.2); transition: border-color .2s, transform .2s, box-shadow .2s; }
+    .card:hover { border-color: rgba(255, 177, 80, .34); box-shadow: 0 18px 48px rgba(0,0,0,.28), var(--glow); }
+    .feature { min-height: 220px; padding: 22px; }
+    .icon { display: grid; width: 42px; height: 42px; place-items: center; margin-bottom: 18px; border: 1px solid rgba(255, 212, 71, .3); border-radius: 12px; background: rgba(255, 106, 26, .1); font-size: 20px; }
+    .card h3 { margin: 0 0 8px; font-size: 19px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .feature a { display: inline-block; margin-top: 18px; color: var(--yellow); font-size: 13px; font-weight: 750; text-decoration: none; }
+    .game-card { padding: 22px; }
+    .game-card h3 { margin-bottom: 5px; }
+    .game-card p { min-height: 44px; }
+    .game-card .button { width: 100%; margin-top: 17px; }
+    .game-status { min-height: 24px !important; margin-top: 10px !important; color: var(--yellow) !important; font-size: 13px !important; }
+    .arena { position: relative; height: 190px; margin-top: 14px; overflow: hidden; border: 1px solid rgba(255, 212, 71, .22); border-radius: 13px; background: #0d0a10; }
+    .target { position: absolute; display: none; width: 34px; height: 34px; border: 3px solid #fff3cc; border-radius: 50%; background: var(--red); box-shadow: 0 0 18px rgba(255, 53, 72, .8); cursor: crosshair; }
+    .target::after { position: absolute; content: ""; inset: 7px; border-radius: 50%; background: var(--yellow); }
+    .reflex-pad { display: grid; min-height: 190px; place-items: center; margin-top: 14px; border: 1px solid rgba(255, 212, 71, .22); border-radius: 13px; background: #0d0a10; color: var(--muted); text-align: center; cursor: pointer; user-select: none; }
+    .reflex-pad.ready { background: #174b2d; color: white; box-shadow: inset 0 0 28px rgba(59, 255, 135, .16); }
+    .reflex-pad.early { background: #531b25; }
+    .solver-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 18px; align-items: start; }
+    .solver-card { padding: clamp(18px, 3vw, 28px); }
+    .solver-help { margin: 10px 0 20px; color: var(--muted); font-size: 14px; }
+    .cube-net { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 520px; margin: 20px auto; }
+    .face { min-width: 0; padding: 7px; border: 1px solid var(--line); border-radius: 14px; background: rgba(8, 7, 11, .38); }
+    .face[data-face="U"] { grid-column: 2; grid-row: 1; }
+    .face[data-face="L"] { grid-column: 1; grid-row: 2; }
+    .face[data-face="F"] { grid-column: 2; grid-row: 2; }
+    .face[data-face="R"] { grid-column: 3; grid-row: 2; }
+    .face[data-face="B"] { grid-column: 4; grid-row: 2; }
+    .face[data-face="D"] { grid-column: 2; grid-row: 3; }
+    .face-name { display: block; margin-bottom: 5px; color: var(--muted); font-size: 10px; font-weight: 800; text-align: center; }
+    .stickers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+    .sticker { width: 100%; aspect-ratio: 1; min-width: 0; padding: 0; border: 1px solid rgba(0,0,0,.48); border-radius: 4px; cursor: pointer; transition: transform .12s, filter .12s; }
+    .sticker:hover { z-index: 1; transform: scale(1.11); filter: brightness(1.13); }
+    .sticker.center { position: relative; }
+    .sticker.center::after { position: absolute; content: "•"; inset: 0; display: grid; place-items: center; color: rgba(0,0,0,.65); font-weight: 900; }
+    .color-palette { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin: 20px 0 12px; }
+    .color-choice { display: grid; width: 39px; height: 39px; place-items: center; border: 2px solid transparent; border-radius: 12px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+    .color-choice[aria-pressed="true"] { border-color: white; box-shadow: 0 0 0 2px var(--orange), 0 0 18px rgba(255,118,46,.3); }
+    .cube-counts { margin: 10px 0 18px; color: var(--muted); font-size: 12px; text-align: center; }
+    .solver-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .solver-actions .button { margin: 0; }
+    .solver-message { min-height: 24px; margin: 14px 0 0 !important; color: var(--yellow) !important; font-size: 13px !important; text-align: center; }
+    .solution-box { margin-top: 18px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: rgba(8,7,11,.42); }
+    .solution-progress { color: var(--muted); font-size: 12px; }
+    .solution-move { display: flex; align-items: center; gap: 16px; margin: 16px 0; }
+    .move-code { display: grid; width: 62px; height: 62px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,214,90,.32); border-radius: 18px; color: var(--yellow); background: rgba(255,118,46,.1); font: 800 24px ui-monospace, monospace; }
+    .move-description { color: var(--muted); font-size: 14px; }
+    .move-visual { display: grid; grid-template-columns: minmax(0, .9fr) minmax(180px, 1.1fr); align-items: center; gap: 12px; margin: 14px 0 18px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(8,7,11,.38); }
+    .rubik-stage { display: grid; min-height: 280px; place-items: center; perspective: 900px; }
+    .rubik-scene { position: relative; width: 104px; height: 104px; transform: rotateX(-25deg) rotateY(-35deg); transform-style: preserve-3d; }
+    .rubik-layer { position: absolute; inset: 0; transform-style: preserve-3d; }
+    .rubik-layer.turn { transition: transform 2s cubic-bezier(.45,0,.2,1); }
+    .rubik-layer.turn-active.turn-x { transform: rotateX(var(--turn-angle)); }
+    .rubik-layer.turn-active.turn-y { transform: rotateY(var(--turn-angle)); }
+    .rubik-layer.turn-active.turn-z { transform: rotateZ(var(--turn-angle)); }
+    .rubik-cubie { position: absolute; top: 50%; left: 50%; width: 32px; height: 32px; transform-style: preserve-3d; border-radius: 4px; background: #100d13; }
+    .rubik-sticker { position: absolute; width: 32px; height: 32px; border: 2px solid #17121a; border-radius: 5px; background: #211b24; backface-visibility: hidden; }
+    .rubik-sticker.front { transform: translateZ(16px); }
+    .rubik-sticker.back { transform: rotateY(180deg) translateZ(16px); }
+    .rubik-sticker.right { transform: rotateY(90deg) translateZ(16px); }
+    .rubik-sticker.left { transform: rotateY(-90deg) translateZ(16px); }
+    .rubik-sticker.top { transform: rotateX(90deg) translateZ(16px); }
+    .rubik-sticker.bottom { transform: rotateX(-90deg) translateZ(16px); }
+    .move-visual-copy { color: var(--muted); font-size: 13px; }
+    .move-visual-copy strong { display: block; margin-bottom: 6px; color: var(--yellow); font-size: 15px; }
+    .move-visual-copy span { display: block; margin-top: 6px; }
+    .move-visual-copy .movement-tip { margin-top: 12px; color: var(--yellow); font-weight: 700; }
+    .chat-card { display: flex; min-height: 510px; flex-direction: column; }
+    .chat-header { margin-bottom: 14px; }
+    .chat-header p { margin-top: 7px; color: var(--muted); font-size: 13px; }
+    .chat-messages { display: flex; min-height: 240px; flex: 1; flex-direction: column; align-items: flex-start; gap: 10px; overflow-y: auto; padding: 14px; border: 1px solid var(--line); border-radius: 15px; background: rgba(8,7,11,.35); }
+    .chat-message { max-width: 92%; padding: 10px 13px; border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; background: var(--panel-light); color: var(--text); font-size: 13px; white-space: pre-wrap; }
+    .chat-message.user { align-self: flex-end; border-color: rgba(255,118,46,.35); border-radius: 14px 14px 4px 14px; background: rgba(255,118,46,.12); }
+    .chat-source { display: block; margin-top: 9px; color: var(--yellow); font-size: 12px; }
+    .chat-form { display: flex; gap: 8px; margin-top: 12px; }
+    .chat-input { min-width: 0; flex: 1; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(8,7,11,.55); color: var(--text); }
+    .chat-form .button { min-height: 44px; margin: 0; padding-inline: 14px; }
+    .chat-disclaimer { margin: 9px 0 0 !important; color: var(--muted) !important; font-size: 11px !important; }
+    .news-card { min-height: 190px; padding: 22px; }
+    .news-label { color: var(--orange); font-size: 11px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    .news-card h3 { margin-top: 12px; }
+    .news-note { margin-top: 18px !important; font-size: 12px !important; }
+    .footer { margin-top: 20px; border-top: 1px solid var(--line); }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; padding-block: 24px; color: var(--muted); font-size: 13px; }
+    .footer strong { color: var(--text); }
+    .footer a { color: var(--yellow); text-decoration: none; }
+    .button:disabled { cursor: wait; filter: saturate(.5); transform: none; }
+    :focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
+
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; padding-top: 58px; }
+      .hero-art { min-height: 260px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .solver-layout { grid-template-columns: 1fr; }
+      .move-visual { grid-template-columns: 1fr; }
+      .rubik-stage { min-height: 260px; }
+      .move-visual-copy { text-align: center; }
+      .chat-card { min-height: 420px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .nav-links { display: none; position: absolute; top: 69px; left: 0; right: 0; padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--bg); }
+      .nav-links.open { display: grid; gap: 14px; }
+      .menu-button { display: block; }
+    }
+    @media (max-width: 520px) {
+      .grid { grid-template-columns: 1fr; }
+      .wrap { width: min(100% - 28px, 1120px); }
+      .hero { gap: 30px; }
+      .footer-inner { flex-direction: column; }
+      .cube-net { gap: 4px; }
+      .face { padding: 4px; }
+      .face-name { font-size: 9px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav wrap" aria-label="Navigation principale">
+      <a class="brand" href="#accueil" aria-label="LaMinuteMDR, accueil">
+        <span class="brand-mark">LMM</span><span class="brand-name">LaMinute<span>MDR</span></span>
+      </a>
+      <button class="menu-button" id="menu-button" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <div class="nav-links" id="nav-links">
+        <a href="#decouvrir">Découvrir</a>
+        <a href="#mini-jeux">Mini-jeux</a>
+        <a href="#rubik">Solveur cube</a>
+        <a href="#assistant">Assistant</a>
+        <a href="#actus">Actus</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap" id="accueil">
+      <div>
+        <div class="eyebrow">Le coin gaming de LMM</div>
+        <h1>On joue, on teste,<br>on rigole. <span>GG&nbsp;!</span></h1>
+        <p>Bienvenue chez LaMinuteMDR : des défis rapides, un solveur de Rubik's Cube et un assistant gaming — le tout dans une ambiance néon bien chill.</p>
+        <div class="actions">
+          <a class="button" href="#mini-jeux">Lancer un défi <span aria-hidden="true">→</span></a>
+          <a class="button secondary" href="#rubik">Résoudre mon cube</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="Illustration d'un Rubik's Cube aux couleurs néon">
+        <div class="cube" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="floating-tag">🎮 Mode chill activé</div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="decouvrir">
+      <div class="section-head">
+        <div><div class="eyebrow">Au programme</div><h2>Un peu de tout, surtout du fun.</h2></div>
+        <p>Des idées à explorer, des records à battre et de nouvelles choses à apprendre à chaque visite.</p>
+      </div>
+      <div class="grid">
+        <article class="card feature">
+          <div class="icon" aria-hidden="true">⚡</div><h3>Défis gaming</h3>
+          <p>Mesure ta vitesse, tes réflexes et ta précision avec des mini-défis accessibles en un clic.</p>
+          <a href="#mini-jeux">Jouer aux défis →</a>
+        </article>
+        <article class="card feature">
+          <div class="icon" aria-hidden="true">🧩</div><h3>Rubik's Cube</h3>
+          <p>Entre les couleurs de ton cube et suis la solution, mouvement après mouvement.</p>
+          <a href="#rubik">Ouvrir le solveur →</a>
+        </article>
+        <article class="card feature">
+          <div class="icon" aria-hidden="true">🗞️</div><h3>Le coin actus</h3>
+          <p>Un espace pour retrouver les prochaines actus gaming, découvertes et petites surprises de LMM.</p>
+          <a href="#actus">Voir le coin actus →</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" id="mini-jeux">
+      <div class="section-head">
+        <div><div class="eyebrow">À toi de jouer</div><h2>Les mini-jeux LMM</h2></div>
+        <p>Pas besoin de télécharger quoi que ce soit. Lance un jeu et tente de battre ton score.</p>
+      </div>
+      <div class="grid">
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🎯</div><h3>Test d'aim</h3>
+          <p>Clique sur un maximum de cibles en 15 secondes. La cible change de place à chaque tir.</p>
+          <div class="arena" id="aim-arena" aria-label="Zone du test d'aim">
+            <button class="target" id="aim-target" type="button" aria-label="Cible"></button>
+          </div>
+          <p class="game-status" id="aim-status" aria-live="polite">Prêt ? Clique sur « Démarrer » !</p>
+          <button class="button" id="aim-start" type="button"><span id="aim-label">Démarrer — record :</span> <span id="aim-best">0</span></button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🖱️</div><h3>Speed test</h3>
+          <p>Combien de clics peux-tu faire en 5 secondes ? Clique vite, mais garde le rythme.</p>
+          <div class="reflex-pad" id="click-pad" role="button" tabindex="0" aria-label="Zone de clic du speed test">Le jeu apparaîtra ici</div>
+          <p class="game-status" id="click-status" aria-live="polite">Prêt à cliquer ?</p>
+          <button class="button" id="click-start" type="button">Lancer le speed test</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🟢</div><h3>Test de réflexes</h3>
+          <p>Attends que la zone passe au vert, puis clique le plus vite possible. Ne te précipite pas !</p>
+          <div class="reflex-pad" id="reflex-pad" role="button" tabindex="0" aria-label="Zone du test de réflexes">Clique pour commencer</div>
+          <p class="game-status" id="reflex-status" aria-live="polite">Ton meilleur temps : <span id="reflex-best">—</span></p>
+          <button class="button" id="reflex-start" type="button">Nouveau test</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" id="rubik">
+      <div class="section-head">
+        <div><div class="eyebrow">Solveur interactif</div><h2>Ton cube, solution par solution.</h2></div>
+        <p>Renseigne les couleurs des six faces, puis suis les mouvements du solveur un par un.</p>
+      </div>
+      <div class="solver-layout">
+        <article class="card solver-card">
+          <div class="eyebrow">1 · Entre les couleurs</div>
+          <p class="solver-help">Tiens le cube avec la face du haut vers le haut et la face avant devant toi. Clique d'abord une couleur dans la palette, puis les cases correspondantes. Les lettres indiquent les faces : U haut, D bas, F devant, B derrière, L gauche, R droite. Les centres définissent les couleurs de référence.</p>
+          <div class="cube-net" id="cube-net" aria-label="Dépliage des six faces du Rubik's Cube"></div>
+          <div class="color-palette" id="color-palette" aria-label="Palette de couleurs"></div>
+          <p class="cube-counts" id="cube-counts" aria-live="polite"></p>
+          <div class="solver-actions">
+            <button class="button" id="solve-button" type="button">Calculer la solution</button>
+            <button class="button secondary" id="reset-cube" type="button">Réinitialiser</button>
+          </div>
+          <p class="solver-message" id="solver-message" aria-live="polite">Le cube affiché est résolu. Remplace les couleurs pour commencer.</p>
+          <div class="solution-box" id="solution-box" hidden aria-live="polite">
+            <div class="solution-progress" id="solution-progress"></div>
+            <div class="solution-move">
+              <span class="move-code" id="move-code"></span>
+              <span class="move-description" id="move-description"></span>
+            </div>
+            <div class="move-visual" id="move-visual">
+              <div class="rubik-stage" id="rubik-stage" role="img" aria-label="Cube Rubik's en 3D"></div>
+              <div class="move-visual-copy">
+                <strong>Regarde le mouvement</strong>
+                <span id="move-visual-turn"></span>
+                <span class="movement-tip">Chaque tour dure environ 2 secondes. Garde le cube orienté comme à l’écran.</span>
+              </div>
+            </div>
+            <button class="button" id="next-move" type="button">Animer ce mouvement →</button>
+          </div>
+        </article>
+        <article class="card solver-card chat-card" id="assistant">
+          <div class="chat-header">
+            <div class="eyebrow">Assistant local · sans compte</div>
+            <h3 style="margin-top:8px">Une question ? On regarde ça.</h3>
+            <p>Pose une question sur le site, ses mini-jeux ou des jeux connus comme Fortnite, Minecraft, Roblox et Valorant.</p>
+          </div>
+          <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+            <div class="chat-message">Salut ! Je suis l'assistant local de LMM. Demande-moi un conseil sur les mini-jeux, le solveur ou le gaming.</div>
+          </div>
+          <form class="chat-form" id="chat-form">
+            <input class="chat-input" id="chat-input" type="text" maxlength="240" placeholder="Écris ta question…" aria-label="Ta question" required>
+            <button class="button" type="submit">Envoyer</button>
+          </form>
+          <p class="chat-disclaimer">Les questions sur les jeux sont envoyées à Wikipédia en français pour chercher un article. Les questions sur le site restent locales. Sans clé API ni frais.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" id="actus">
+      <div class="section-head">
+        <div><div class="eyebrow">À suivre</div><h2>Le coin actus</h2></div>
+        <p>Un espace prêt à accueillir tes prochaines nouvelles, vidéos et annonces.</p>
+      </div>
+      <div class="grid">
+        <article class="card news-card"><div class="news-label">Bientôt sur LMM</div><h3>Les actus arrivent ici</h3><p>Ajoute ici tes nouveautés gaming, tes vidéos ou tes découvertes du moment.</p><p class="news-note">À compléter avec tes propres actus.</p></article>
+        <article class="card news-card"><div class="news-label">Prochain défi</div><h3>Quel record vas-tu battre ?</h3><p>Partage les meilleurs scores de la communauté et relance le défi la prochaine fois.</p><p class="news-note">Les scores des jeux restent sur cet appareil.</p></article>
+        <article class="card news-card"><div class="news-label">Communauté</div><h3>LaMinuteMDR, c'est vous aussi</h3><p>Une idée de mini-jeu ou un sujet à tester ? Garde cette carte pour annoncer la suite.</p><p class="news-note">GG à tous les joueurs !</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner wrap"><span><strong>LaMinuteMDR</strong> · LMM · Gaming & bonne humeur</span><span>Le solveur utilise <a href="https://www.npmjs.com/package/cubejs" target="_blank" rel="noreferrer">cube.js</a> (connexion Internet requise).</span></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/cubejs@1.3.2/lib/cube.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cubejs@1.3.2/lib/solve.js"></script>
+  <script>
+    const menuButton = document.querySelector("#menu-button");
+    const navLinks = document.querySelector("#nav-links");
+    menuButton.addEventListener("click", () => {
+      const open = menuButton.getAttribute("aria-expanded") !== "true";
+      menuButton.setAttribute("aria-expanded", String(open));
+      navLinks.classList.toggle("open", open);
+    });
+    navLinks.addEventListener("click", (event) => {
+      if (event.target instanceof HTMLAnchorElement) {
+        navLinks.classList.remove("open");
+        menuButton.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    const aimArena = document.querySelector("#aim-arena");
+    const aimTarget = document.querySelector("#aim-target");
+    const aimStart = document.querySelector("#aim-start");
+    const aimLabel = document.querySelector("#aim-label");
+    const aimStatus = document.querySelector("#aim-status");
+    const aimBest = document.querySelector("#aim-best");
+    let aimScore = 0;
+    let aimTimer;
+    let aimActive = false;
+    let savedAimBest = Number(localStorage.getItem("llm-aim-best") || 0);
+    aimBest.textContent = String(savedAimBest);
+
+    function moveTarget() {
+      const maxX = Math.max(0, aimArena.clientWidth - aimTarget.offsetWidth);
+      const maxY = Math.max(0, aimArena.clientHeight - aimTarget.offsetHeight);
+      aimTarget.style.left = `${Math.random() * maxX}px`;
+      aimTarget.style.top = `${Math.random() * maxY}px`;
+    }
+    aimStart.addEventListener("click", () => {
+      if (aimActive) return;
+      aimActive = true;
+      aimScore = 0;
+      let remaining = 15;
+      aimStart.disabled = true;
+      aimLabel.textContent = "15 secondes";
+      aimStatus.textContent = "C'est parti !";
+      aimTarget.style.display = "block";
+      moveTarget();
+      aimTimer = window.setInterval(() => {
+        remaining -= 1;
+        aimLabel.textContent = `${remaining} seconde${remaining > 1 ? "s" : ""}`;
+        if (remaining <= 0) {
+          window.clearInterval(aimTimer);
+          aimActive = false;
+          aimTarget.style.display = "none";
+          aimStart.disabled = false;
+          aimLabel.textContent = "Rejouer — record :";
+          aimStatus.textContent = `Temps écoulé ! Ton score : ${aimScore} cible${aimScore > 1 ? "s" : ""}.`;
+        }
+      }, 1000);
+    });
+    aimTarget.addEventListener("click", () => {
+      if (!aimActive) return;
+      aimScore += 1;
+      aimStatus.textContent = `Score : ${aimScore}`;
+      moveTarget();
+      if (aimScore > savedAimBest) {
+        savedAimBest = aimScore;
+        localStorage.setItem("llm-aim-best", String(savedAimBest));
+        aimBest.textContent = String(savedAimBest);
+      }
+    });
+
+    const clickPad = document.querySelector("#click-pad");
+    const clickStatus = document.querySelector("#click-status");
+    const clickStart = document.querySelector("#click-start");
+    let clickCount = 0;
+    let clickActive = false;
+    let clickTimer;
+    clickStart.addEventListener("click", () => {
+      if (clickActive) return;
+      clickActive = true;
+      clickCount = 0;
+      clickPad.textContent = "CLIQUE !";
+      clickPad.style.color = "var(--yellow)";
+      clickStatus.textContent = "5 secondes, top chrono !";
+      clickStart.disabled = true;
+      clickTimer = window.setTimeout(() => {
+        clickActive = false;
+        clickPad.textContent = "Terminé !";
+        clickPad.style.color = "";
+        clickStart.disabled = false;
+        clickStatus.textContent = `Résultat : ${clickCount} clic${clickCount > 1 ? "s" : ""} en 5 secondes.`;
+      }, 5000);
+    });
+    function registerClick() {
+      if (clickActive) {
+        clickCount += 1;
+        clickStatus.textContent = `${clickCount} clic${clickCount > 1 ? "s" : ""}… continue !`;
+      }
+    }
+    clickPad.addEventListener("click", registerClick);
+    clickPad.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        registerClick();
+      }
+    });
+
+    const reflexPad = document.querySelector("#reflex-pad");
+    const reflexStatus = document.querySelector("#reflex-status");
+    const reflexBest = document.querySelector("#reflex-best");
+    const reflexStart = document.querySelector("#reflex-start");
+    let reflexState = "idle";
+    let reflexTimeout;
+    let reflexStartedAt = 0;
+    let savedReflexBest = Number(localStorage.getItem("llm-reflex-best") || 0);
+    reflexBest.textContent = savedReflexBest ? `${savedReflexBest} ms` : "—";
+    reflexStart.addEventListener("click", () => {
+      window.clearTimeout(reflexTimeout);
+      reflexPad.className = "reflex-pad";
+      reflexPad.textContent = "Attends le vert…";
+      reflexStatus.textContent = "Ne clique pas trop tôt !";
+      reflexStart.disabled = true;
+      reflexState = "waiting";
+      reflexTimeout = window.setTimeout(() => {
+        reflexState = "ready";
+        reflexStartedAt = performance.now();
+        reflexPad.classList.add("ready");
+        reflexPad.textContent = "MAINTENANT !";
+      }, 1200 + Math.random() * 2600);
+    });
+    function handleReflexClick() {
+      if (reflexState === "waiting") {
+        window.clearTimeout(reflexTimeout);
+        reflexState = "idle";
+        reflexPad.className = "reflex-pad early";
+        reflexPad.textContent = "Trop tôt ! Clique sur « Nouveau test ».";
+        reflexStatus.textContent = "Aïe, faux départ !";
+        reflexStart.disabled = false;
+      } else if (reflexState === "ready") {
+        const result = Math.round(performance.now() - reflexStartedAt);
+        reflexState = "idle";
+        reflexPad.className = "reflex-pad";
+        reflexPad.textContent = `${result} ms — bien joué !`;
+        if (!savedReflexBest || result < savedReflexBest) {
+          savedReflexBest = result;
+          localStorage.setItem("llm-reflex-best", String(result));
+          reflexBest.textContent = `${result} ms`;
+        }
+        reflexStatus.textContent = `Ton meilleur temps : ${savedReflexBest} ms`;
+        reflexStart.disabled = false;
+      } else if (reflexState === "idle") {
+        reflexPad.textContent = "Clique sur « Nouveau test » pour commencer.";
+      }
+    }
+    reflexPad.addEventListener("click", handleReflexClick);
+    reflexPad.addEventListener("keydown", (event) => {
+      if ((event.key === "Enter" || event.key === " ") && reflexState !== "idle") {
+        event.preventDefault();
+        handleReflexClick();
+      }
+    });
+
+    const cubeFaceOrder = ["U", "R", "F", "D", "L", "B"];
+    const cubeFaces = [
+      { id: "U", name: "U · Haut", color: "white" },
+      { id: "L", name: "L · Gauche", color: "orange" },
+      { id: "F", name: "F · Devant", color: "green" },
+      { id: "R", name: "R · Droite", color: "red" },
+      { id: "B", name: "B · Derrière", color: "blue" },
+      { id: "D", name: "D · Bas", color: "yellow" }
+    ];
+    const cubePalette = [
+      { id: "white", name: "Blanc", hex: "#f7f3e8" },
+      { id: "yellow", name: "Jaune", hex: "#ffd447" },
+      { id: "red", name: "Rouge", hex: "#ef3340" },
+      { id: "orange", name: "Orange", hex: "#ff7a24" },
+      { id: "blue", name: "Bleu", hex: "#2474e8" },
+      { id: "green", name: "Vert", hex: "#20a967" }
+    ];
+    const cubeColors = Object.fromEntries(
+      cubeFaces.map((face) => [face.id, Array(9).fill(face.color)])
+    );
+    const cubeNet = document.querySelector("#cube-net");
+    const colorPalette = document.querySelector("#color-palette");
+    const cubeCounts = document.querySelector("#cube-counts");
+    const solverMessage = document.querySelector("#solver-message");
+    const solveButton = document.querySelector("#solve-button");
+    const solutionBox = document.querySelector("#solution-box");
+    const solutionProgress = document.querySelector("#solution-progress");
+    const moveCode = document.querySelector("#move-code");
+    const moveDescription = document.querySelector("#move-description");
+    const rubikStage = document.querySelector("#rubik-stage");
+    const moveVisualTurn = document.querySelector("#move-visual-turn");
+    const moveVisual = document.querySelector("#move-visual");
+    const nextMoveButton = document.querySelector("#next-move");
+    let selectedColor = "white";
+    let solutionMoves = [];
+    let solutionIndex = 0;
+    let solutionCube = null;
+    let animationInProgress = false;
+    let solverReady = false;
+    let solverInitializing = false;
+
+    function renderCubeInput() {
+      cubeNet.replaceChildren();
+      for (const face of cubeFaces) {
+        const faceElement = document.createElement("div");
+        faceElement.className = "face";
+        faceElement.dataset.face = face.id;
+        const label = document.createElement("span");
+        label.className = "face-name";
+        label.textContent = face.name;
+        const stickers = document.createElement("div");
+        stickers.className = "stickers";
+        cubeColors[face.id].forEach((color, index) => {
+          const sticker = document.createElement("button");
+          sticker.type = "button";
+          sticker.className = `sticker${index === 4 ? " center" : ""}`;
+          sticker.style.backgroundColor = cubePalette.find((entry) => entry.id === color).hex;
+          sticker.setAttribute("aria-label", `${face.name}, case ${index + 1} : ${cubePalette.find((entry) => entry.id === color).name}`);
+          sticker.title = `${face.name} · case ${index + 1} · ${cubePalette.find((entry) => entry.id === color).name}`;
+          sticker.addEventListener("click", () => {
+            cubeColors[face.id][index] = selectedColor;
+            const selected = cubePalette.find((entry) => entry.id === selectedColor);
+            sticker.style.backgroundColor = selected.hex;
+            sticker.setAttribute("aria-label", `${face.name}, case ${index + 1} : ${selected.name}`);
+            sticker.title = `${face.name} · case ${index + 1} · ${selected.name}`;
+            solutionBox.hidden = true;
+            solverMessage.textContent = "Couleur modifiée. Vérifie les compteurs puis recalcule la solution.";
+            updateCubeCounts();
+          });
+          stickers.append(sticker);
+        });
+        faceElement.append(label, stickers);
+        cubeNet.append(faceElement);
+      }
+      updateCubeCounts();
+    }
+
+    function updateCubeCounts() {
+      const counts = Object.fromEntries(cubePalette.map((color) => [color.id, 0]));
+      for (const face of cubeFaces) {
+        for (const color of cubeColors[face.id]) counts[color] += 1;
+      }
+      cubeCounts.textContent = cubePalette
+        .map((color) => `${color.name} ${counts[color.id]}/9`)
+        .join(" · ");
+    }
+
+    for (const color of cubePalette) {
+      const choice = document.createElement("button");
+      choice.type = "button";
+      choice.className = "color-choice";
+      choice.style.backgroundColor = color.hex;
+      choice.setAttribute("aria-label", `Choisir ${color.name.toLowerCase()}`);
+      choice.setAttribute("aria-pressed", String(color.id === selectedColor));
+      choice.title = color.name;
+      choice.addEventListener("click", () => {
+        selectedColor = color.id;
+        for (const button of colorPalette.querySelectorAll(".color-choice")) {
+          button.setAttribute("aria-pressed", String(button === choice));
+        }
+      });
+      colorPalette.append(choice);
+    }
+    renderCubeInput();
+
+    function permutationParity(values) {
+      let inversions = 0;
+      for (let i = 0; i < values.length; i += 1) {
+        for (let j = i + 1; j < values.length; j += 1) {
+          if (values[i] > values[j]) inversions += 1;
+        }
+      }
+      return inversions % 2;
+    }
+
+    function readCubeState() {
+      const colorCounts = Object.fromEntries(cubePalette.map((color) => [color.id, 0]));
+      for (const face of cubeFaces) {
+        for (const color of cubeColors[face.id]) colorCounts[color] += 1;
+      }
+      const wrongCounts = cubePalette.filter((color) => colorCounts[color.id] !== 9);
+      if (wrongCounts.length) {
+        throw new Error("Un cube valide contient exactement 9 cases de chaque couleur. Corrige les compteurs avant de continuer.");
+      }
+
+      const colorToFace = new Map();
+      for (const face of cubeFaces) {
+        const centerColor = cubeColors[face.id][4];
+        if (colorToFace.has(centerColor)) {
+          throw new Error("Chaque centre doit avoir une couleur différente. Modifie les cases centrales.");
+        }
+        colorToFace.set(centerColor, face.id);
+      }
+
+      const facelets = cubeFaceOrder
+        .map((faceId) => cubeColors[faceId].map((color) => colorToFace.get(color) || "?").join(""))
+        .join("");
+      const cube = Cube.fromString(facelets);
+      const state = cube.toJSON();
+      const hasDuplicates = (values) => new Set(values).size !== values.length;
+      if (hasDuplicates(state.cp) || hasDuplicates(state.ep)) {
+        throw new Error("Les couleurs ne forment pas un cube possible. Vérifie les cases et les centres.");
+      }
+      if (state.co.reduce((sum, value) => sum + value, 0) % 3 !== 0 ||
+          state.eo.reduce((sum, value) => sum + value, 0) % 2 !== 0 ||
+          permutationParity(state.cp) !== permutationParity(state.ep)) {
+        throw new Error("Cette disposition de couleurs est impossible sur un Rubik's Cube. Vérifie les stickers saisis.");
+      }
+      for (const face of cubeFaces) {
+        const centerColor = cubeColors[face.id][4];
+        stickerColors[face.id] = cubePalette.find((color) => color.id === centerColor).hex;
+      }
+      return cube;
+    }
+
+    const faceNames = { U: "haut", D: "bas", F: "avant", B: "arrière", L: "gauche", R: "droite" };
+    const stickerColors = {
+      U: "#f7f3e8",
+      R: "#ef3340",
+      F: "#20a967",
+      D: "#ffd447",
+      L: "#ff7a24",
+      B: "#2474e8"
+    };
+    const cubieFaces = [
+      { id: "F", className: "front", visible: (x, y, z) => z === 1, index: (x, y, z) => 18 + (1 - y) * 3 + x + 1 },
+      { id: "B", className: "back", visible: (x, y, z) => z === -1, index: (x, y, z) => 45 + (1 - y) * 3 + 1 - x },
+      { id: "R", className: "right", visible: (x) => x === 1, index: (x, y, z) => 9 + (1 - y) * 3 + 1 - z },
+      { id: "L", className: "left", visible: (x) => x === -1, index: (x, y, z) => 36 + (1 - y) * 3 + z + 1 },
+      { id: "U", className: "top", visible: (x, y) => y === 1, index: (x, y, z) => (z + 1) * 3 + x + 1 },
+      { id: "D", className: "bottom", visible: (x, y) => y === -1, index: (x, y, z) => 27 + (1 - z) * 3 + x + 1 }
+    ];
+
+    function renderAnimatedCube(cube, move = null) {
+      const facelets = cube.asString();
+      const axis = move ? ({ U: "y", D: "y", R: "x", L: "x", F: "z", B: "z" })[move[0]] : null;
+      const layerSign = move ? ({ U: 1, D: -1, R: 1, L: -1, F: 1, B: -1 })[move[0]] : 0;
+      const rotationSign = move ? ({ U: -1, D: 1, R: 1, L: -1, F: 1, B: -1 })[move[0]] : 0;
+      const angle = move ? (move.endsWith("2") ? 180 : move.endsWith("'") ? -90 : 90) * rotationSign : 0;
+      const stage = document.createElement("div");
+      stage.className = "rubik-stage";
+      stage.setAttribute("role", "img");
+      stage.setAttribute("aria-label", move
+        ? `Cube Rubik's en 3D avant l'animation du mouvement ${move}, face ${faceNames[move[0]]}.`
+        : "Cube Rubik's en 3D, mis à jour avec les couleurs de ton cube.");
+
+      const scene = document.createElement("div");
+      scene.className = "rubik-scene";
+      const staticLayer = document.createElement("div");
+      staticLayer.className = "rubik-layer";
+      const movingLayer = document.createElement("div");
+      movingLayer.className = "rubik-layer";
+      if (move) {
+        movingLayer.classList.add("turn", `turn-${axis}`);
+        movingLayer.style.setProperty("--turn-angle", `${angle}deg`);
+      }
+
+      const spacing = 34;
+      for (let x = -1; x <= 1; x += 1) {
+        for (let y = -1; y <= 1; y += 1) {
+          for (let z = -1; z <= 1; z += 1) {
+            const cubie = document.createElement("div");
+            cubie.className = "rubik-cubie";
+            cubie.style.transform = `translate3d(calc(-50% + ${x * spacing}px), calc(-50% - ${y * spacing}px), ${z * spacing}px)`;
+            for (const face of cubieFaces) {
+              if (!face.visible(x, y, z)) continue;
+              const sticker = document.createElement("span");
+              sticker.className = `rubik-sticker ${face.className}`;
+              const index = face.index(x, y, z);
+              sticker.style.backgroundColor = stickerColors[facelets[index]];
+              sticker.setAttribute("aria-hidden", "true");
+              cubie.append(sticker);
+            }
+            const inMovingLayer = move && ({ x, y, z })[axis] === layerSign;
+            (inMovingLayer ? movingLayer : staticLayer).append(cubie);
+          }
+        }
+      }
+      scene.append(staticLayer);
+      if (move) scene.append(movingLayer);
+      stage.append(scene);
+      rubikStage.replaceChildren(stage);
+      return move ? movingLayer : null;
+    }
+
+    function animateLayer(layer) {
+      return new Promise((resolve) => {
+        let finished = false;
+        const complete = () => {
+          if (finished) return;
+          finished = true;
+          resolve();
+        };
+        layer.addEventListener("transitionend", complete, { once: true });
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => layer.classList.add("turn-active"));
+        });
+        const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 50 : 2100;
+        window.setTimeout(complete, duration);
+      });
+    }
+
+    function describeMove(move) {
+      const face = move[0];
+      const suffix = move.slice(1);
+      if (suffix === "2") return `Tourne la face ${faceNames[face]} de 180° (un demi-tour).`;
+      if (suffix === "'") return `Tourne la face ${faceNames[face]} d'un quart de tour dans le sens antihoraire, en regardant cette face.`;
+      return `Tourne la face ${faceNames[face]} d'un quart de tour dans le sens horaire, en regardant cette face.`;
+    }
+
+    function showSolutionMove() {
+      const move = solutionMoves[solutionIndex];
+      moveCode.textContent = move;
+      moveDescription.textContent = describeMove(move);
+      moveVisualTurn.textContent = move.endsWith("2")
+        ? "Demi-tour : tourne la face de 180°."
+        : move.endsWith("'")
+          ? "Quart de tour dans le sens inverse de l’horloge."
+          : "Quart de tour dans le sens de l’horloge.";
+      moveVisual.hidden = false;
+      renderAnimatedCube(solutionCube);
+      solutionProgress.textContent = `Mouvement ${solutionIndex + 1} sur ${solutionMoves.length}`;
+      nextMoveButton.textContent = `Animer ${move} →`;
+    }
+
+    function setCubeInputsDisabled(disabled) {
+      solveButton.disabled = disabled;
+      document.querySelector("#reset-cube").disabled = disabled;
+      for (const control of colorPalette.querySelectorAll("button")) control.disabled = disabled;
+      for (const control of cubeNet.querySelectorAll("button")) control.disabled = disabled;
+    }
+
+    nextMoveButton.addEventListener("click", async () => {
+      if (animationInProgress || !solutionCube) return;
+      animationInProgress = true;
+      nextMoveButton.disabled = true;
+      setCubeInputsDisabled(true);
+      const move = solutionMoves[solutionIndex];
+      const movingLayer = renderAnimatedCube(solutionCube, move);
+      if (movingLayer) await animateLayer(movingLayer);
+      solutionCube.move(move);
+      animationInProgress = false;
+      setCubeInputsDisabled(false);
+
+      if (solutionIndex < solutionMoves.length - 1) {
+        solutionIndex += 1;
+        showSolutionMove();
+        nextMoveButton.disabled = false;
+      } else {
+        renderAnimatedCube(solutionCube);
+        solutionProgress.textContent = `Cube résolu en ${solutionMoves.length} mouvements. Bien joué !`;
+        moveCode.textContent = "✓";
+        moveDescription.textContent = "Tu as terminé la solution. Tu peux modifier les couleurs et en calculer une nouvelle.";
+        moveVisual.hidden = true;
+        nextMoveButton.disabled = true;
+      }
+    });
+
+    function runCubeSolver(cube) {
+      try {
+        solutionBox.hidden = false;
+        if (cube.isSolved()) {
+          solutionMoves = [];
+          solutionCube = cube.clone();
+          solutionProgress.textContent = "Ce cube est déjà résolu.";
+          moveCode.textContent = "✓";
+          moveDescription.textContent = "Aucun mouvement nécessaire.";
+          moveVisual.hidden = true;
+          renderAnimatedCube(solutionCube);
+          nextMoveButton.disabled = true;
+          solverMessage.textContent = "Ton cube est déjà résolu !";
+          return;
+        }
+        const algorithm = cube.solve().trim();
+        solutionMoves = algorithm ? algorithm.split(/\s+/) : [];
+        solutionIndex = 0;
+        solutionCube = cube.clone();
+        if (!solutionMoves.length) {
+          solutionProgress.textContent = "Ce cube est déjà résolu.";
+          moveCode.textContent = "✓";
+          moveDescription.textContent = "Aucun mouvement nécessaire.";
+          moveVisual.hidden = true;
+          nextMoveButton.disabled = true;
+          solverMessage.textContent = "Ton cube est déjà résolu !";
+          return;
+        }
+        nextMoveButton.disabled = false;
+        showSolutionMove();
+        solverMessage.textContent = `Solution trouvée : ${solutionMoves.length} mouvements. Suis-les dans l'ordre.`;
+      } catch (error) {
+        solverMessage.textContent = `Impossible de calculer la solution : ${error instanceof Error ? error.message : "erreur inconnue."}`;
+      } finally {
+        solveButton.disabled = false;
+        solveButton.textContent = "Calculer la solution";
+      }
+    }
+
+    solveButton.addEventListener("click", () => {
+      solutionBox.hidden = true;
+      nextMoveButton.disabled = false;
+      let cube;
+      try {
+        if (typeof Cube === "undefined") {
+          throw new Error("Le solveur n'a pas pu être chargé. Vérifie ta connexion Internet puis recharge la page.");
+        }
+        cube = readCubeState();
+      } catch (error) {
+        solverMessage.textContent = error instanceof Error ? error.message : "Impossible de lire les couleurs saisies.";
+        return;
+      }
+
+      if (cube.isSolved()) {
+        runCubeSolver(cube);
+        return;
+      }
+      if (solverReady) {
+        runCubeSolver(cube);
+        return;
+      }
+      if (solverInitializing) return;
+      solverInitializing = true;
+      solveButton.disabled = true;
+      solveButton.textContent = "Préparation du solveur…";
+      solverMessage.textContent = "Première utilisation : préparation du solveur, cela peut prendre quelques secondes.";
+      window.setTimeout(() => {
+        try {
+          Cube.initSolver();
+          solverReady = true;
+          runCubeSolver(cube);
+        } catch (error) {
+          solverMessage.textContent = `Le solveur n'a pas pu démarrer : ${error instanceof Error ? error.message : "erreur inconnue."}`;
+          solveButton.disabled = false;
+          solveButton.textContent = "Calculer la solution";
+        } finally {
+          solverInitializing = false;
+        }
+      }, 50);
+    });
+
+    document.querySelector("#reset-cube").addEventListener("click", () => {
+      for (const face of cubeFaces) cubeColors[face.id].fill(face.color);
+      selectedColor = "white";
+      for (const button of colorPalette.querySelectorAll(".color-choice")) {
+        button.setAttribute("aria-pressed", String(button.getAttribute("aria-label") === "Choisir blanc"));
+      }
+      solutionBox.hidden = true;
+      nextMoveButton.disabled = false;
+      solverMessage.textContent = "Le cube affiché est résolu. Remplace les couleurs pour commencer.";
+      renderCubeInput();
+    });
+
+    const chatForm = document.querySelector("#chat-form");
+    const chatInput = document.querySelector("#chat-input");
+    const chatMessages = document.querySelector("#chat-messages");
+    function addChatMessage(text, sender, source = null) {
+      const message = document.createElement("div");
+      message.className = `chat-message${sender === "user" ? " user" : ""}`;
+      message.textContent = text;
+      if (source) {
+        const link = document.createElement("a");
+        link.className = "chat-source";
+        link.href = source.url;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = `Source : Wikipédia — ${source.title}`;
+        message.append(link);
+      }
+      chatMessages.append(message);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    const gameKnowledge = [
+      {
+        name: "Fortnite",
+        aliases: ["fortnite zero build", "fortnite battle royale", "fortnite", "zero build"],
+        type: "jeu d'action de type battle royale",
+        description: "Dans le mode Battle Royale, tu atterris sur une île, récupères de l'équipement et essaies de rester le dernier joueur ou la dernière équipe en vie pendant que la zone jouable rétrécit. Le mode classique permet de construire ; le mode Zéro construction met plutôt l'accent sur les déplacements et les abris.",
+        tip: "Pour débuter, choisis un endroit calme, récupère une arme et des soins, puis reste près de la zone sûre."
+      },
+      {
+        name: "Minecraft",
+        aliases: ["minecraft java", "minecraft bedrock", "minecraft"],
+        type: "jeu bac à sable de construction et de survie",
+        description: "Minecraft se déroule dans un monde composé de blocs que tu peux explorer, miner, fabriquer et transformer. En Survie, tu récoltes des ressources et fais face aux créatures ; en Créatif, tu construis librement.",
+        tip: "En Survie, fabrique d'abord des outils, garde de la nourriture et construis un abri avant la nuit."
+      },
+      {
+        name: "Roblox",
+        aliases: ["roblox studio", "roblox"],
+        type: "plateforme de jeux et de création",
+        description: "Roblox n'est pas un seul jeu : c'est une plateforme pour découvrir des expériences créées par d'autres joueurs, comme des parcours, des jeux de rôle et des aventures. Roblox Studio sert à créer ses propres expériences.",
+        tip: "Chaque expérience a ses règles et ses contrôles. Regarde sa description et utilise les paramètres de confidentialité si tu joues en ligne."
+      },
+      {
+        name: "Valorant",
+        aliases: ["valorant", "valo"],
+        type: "jeu de tir tactique à la première personne",
+        description: "Valorant oppose deux équipes de cinq joueurs. Les attaquants essaient de poser le Spike et les défenseurs protègent les sites. Chaque agent possède des capacités particulières, mais la précision et la coopération sont essentielles.",
+        tip: "Apprends les cartes et les capacités d'un seul agent à la fois. Arrête-toi pour tirer plus précisément."
+      },
+      {
+        name: "League of Legends",
+        aliases: ["league of legends wild rift", "league of legends", "league", "lol"],
+        type: "jeu de stratégie en équipe, appelé MOBA",
+        description: "Deux équipes choisissent des champions et s'affrontent sur une carte. Il faut gagner des ressources, collaborer et détruire le Nexus adverse en progressant à travers les lignes et les défenses.",
+        tip: "Commence avec un rôle et quelques champions simples. Regarde la mini-carte et joue les objectifs avec ton équipe."
+      },
+      {
+        name: "Rocket League",
+        aliases: ["rocket league", "rocketleague"],
+        type: "jeu de football avec des voitures",
+        description: "Rocket League mélange football et voitures propulsées par des fusées. Les équipes essaient de marquer en conduisant, sautant et utilisant le boost. Les matchs classiques se jouent en trois contre trois.",
+        tip: "Entraîne-toi à toucher le ballon et à revenir défendre plutôt que de foncer à plusieurs dessus."
+      },
+      {
+        name: "Grand Theft Auto V",
+        aliases: ["grand theft auto v", "grand theft auto 5", "gta online", "gta 5", "gta v", "gta5"],
+        type: "jeu d'action en monde ouvert",
+        description: "GTA V se déroule dans la ville fictive de Los Santos. Son mode histoire suit trois personnages et leurs braquages ; GTA Online propose un monde multijoueur avec des activités, des missions et des courses.",
+        tip: "Le mode histoire et le mode en ligne sont différents. En ligne, vérifie tes paramètres de confidentialité."
+      },
+      {
+        name: "Counter-Strike 2",
+        aliases: ["counter strike 2", "counter strike", "counterstrike", "cs go", "csgo", "cs2"],
+        type: "jeu de tir tactique à la première personne",
+        description: "Counter-Strike 2 oppose notamment des terroristes à des contre-terroristes. Selon la manche, il faut poser ou désamorcer une bombe, protéger un site ou éliminer l'équipe adverse. L'argent gagné sert à acheter l'équipement des manches suivantes.",
+        tip: "Apprends quelques cartes, reste avec ton équipe et arrête-toi avant de tirer pour viser avec précision."
+      },
+      {
+        name: "Call of Duty",
+        aliases: ["call of duty warzone", "call of duty", "modern warfare", "black ops", "warzone", "cod"],
+        type: "franchise de jeux de tir à la première personne",
+        description: "Call of Duty est une série qui comprend des campagnes scénarisées et des modes multijoueurs. Selon l'épisode, on peut jouer des combats en équipe, des modes coopératifs ou Warzone, une expérience de type battle royale.",
+        tip: "Les objectifs changent selon le mode : regarde les consignes et équipe-toi en fonction de la carte."
+      },
+      {
+        name: "Among Us",
+        aliases: ["among us"],
+        type: "jeu multijoueur de déduction sociale",
+        description: "L'équipage accomplit des tâches tandis qu'un ou plusieurs imposteurs essaient de le saboter sans se faire repérer. Les joueurs discutent et votent pour tenter de découvrir qui ment.",
+        tip: "En équipier, observe les déplacements et explique ce que tu as vu sans accuser au hasard."
+      },
+      {
+        name: "Apex Legends",
+        aliases: ["apex legends", "apex"],
+        type: "jeu de tir battle royale en équipe",
+        description: "Des équipes de personnages appelés Légendes s'affrontent sur une carte qui rétrécit. Chaque Légende possède des capacités utiles pour se déplacer, repérer ou protéger son équipe.",
+        tip: "Choisis une Légende qui complète ton équipe et pense à te replacer avant que la zone ne se referme."
+      },
+      {
+        name: "Overwatch 2",
+        aliases: ["overwatch 2", "overwatch", "ow2"],
+        type: "jeu de tir en équipe avec des héros",
+        description: "Deux équipes choisissent des héros aux capacités différentes. Les rôles principaux sont les tanks, les dégâts et le soutien ; il faut coopérer pour prendre ou défendre des objectifs.",
+        tip: "Reste près de ton équipe et adapte ton héros à la situation."
+      },
+      {
+        name: "Fall Guys",
+        aliases: ["fall guys", "fallguys"],
+        type: "jeu de parcours et de compétition multijoueur",
+        description: "Les joueurs s'affrontent dans une série d'épreuves colorées : parcours d'obstacles, jeux en équipe et manches de survie. Il faut se qualifier jusqu'à la finale.",
+        tip: "Observe les obstacles avant de sauter et évite les mouvements brusques dans les zones bondées."
+      },
+      {
+        name: "PUBG: Battlegrounds",
+        aliases: ["pubg battlegrounds", "pubg"],
+        type: "jeu de tir battle royale",
+        description: "Les joueurs atterrissent sur une grande carte, trouvent des armes et de l'équipement, puis tentent de rester dans la zone sûre pour être la dernière personne ou équipe en vie.",
+        tip: "Surveille la carte, récupère l'équipement utile et déplace-toi à couvert plutôt que de traverser les zones ouvertes."
+      },
+      {
+        name: "Rainbow Six Siege",
+        aliases: ["rainbow six siege", "rainbow six", "r6 siege", "r6"],
+        type: "jeu de tir tactique en équipes",
+        description: "Les attaquants et les défenseurs s'affrontent dans des cartes destructibles. Les équipes choisissent des agents et utilisent gadgets, drones et coopération pour sécuriser ou protéger un objectif.",
+        tip: "Repère les lieux avec les drones et apprends progressivement les cartes. L'information compte autant que la visée."
+      },
+      {
+        name: "The Sims",
+        aliases: ["the sims", "les sims 4", "sims 4", "les sims"],
+        type: "jeu de simulation de vie",
+        description: "Les Sims est une série de simulation où l'on crée des personnages, construit des maisons et guide la vie quotidienne de ses Sims : relations, loisirs, travail et projets.",
+        tip: "Il n'y a pas une seule bonne façon de jouer : tu peux construire, raconter une histoire ou voir ce qui arrive à tes personnages."
+      },
+      {
+        name: "Stardew Valley",
+        aliases: ["stardew valley", "stardew"],
+        type: "jeu de ferme et d'aventure relaxant",
+        description: "Tu reprends une ferme et choisis comment remplir tes journées : cultiver, pêcher, explorer des mines, fabriquer des objets ou apprendre à connaître les habitants du village.",
+        tip: "Tu n'as pas besoin de tout faire chaque jour. Plante selon la saison et garde de l'énergie pour les activités que tu préfères."
+      },
+      {
+        name: "Terraria",
+        aliases: ["terraria"],
+        type: "jeu d'aventure, de construction et de survie en 2D",
+        description: "Terraria propose un monde en deux dimensions à explorer, creuser et construire. On récolte des matériaux, fabrique de l'équipement et affronte des ennemis et des boss.",
+        tip: "Construis un abri, range tes ressources et améliore ton équipement avant d'affronter les boss."
+      },
+      {
+        name: "Genshin Impact",
+        aliases: ["genshin impact", "genshin"],
+        type: "jeu de rôle d'action en monde ouvert",
+        description: "Genshin Impact est un jeu d'action et d'aventure où l'on explore Teyvat, découvre son histoire et compose une équipe de personnages. Les combats reposent notamment sur les éléments et leurs réactions.",
+        tip: "Expérimente avec les réactions élémentaires et améliore une petite équipe au lieu de disperser tes ressources."
+      },
+      {
+        name: "Elden Ring",
+        aliases: ["elden ring"],
+        type: "jeu de rôle d'action exigeant en monde ouvert",
+        description: "Elden Ring est un jeu d'aventure et de rôle dans un vaste monde fantastique. On explore librement, améliore son personnage et affronte des ennemis et des boss difficiles.",
+        tip: "Si un combat bloque, explore ailleurs, améliore ton équipement et apprends les mouvements du boss."
+      },
+      {
+        name: "The Legend of Zelda",
+        aliases: ["the legend of zelda", "zelda tears of the kingdom", "zelda breath of the wild", "zelda"],
+        type: "série de jeux d'aventure",
+        description: "The Legend of Zelda est une série où Link explore des mondes fantastiques, résout des énigmes et affronte des ennemis. Les épisodes proposent souvent de l'exploration, des objets et des donjons.",
+        tip: "Explore et essaie les objets disponibles : beaucoup d'énigmes ont plusieurs solutions."
+      },
+      {
+        name: "Super Mario",
+        aliases: ["super mario", "mario kart", "mario bros", "mario"],
+        type: "série de jeux de plateforme et de course",
+        description: "Mario est une série de jeux Nintendo. Dans les jeux de plateforme, Mario traverse des niveaux et saute par-dessus les obstacles ; Mario Kart transforme les personnages de la série en pilotes de course.",
+        tip: "Observe le rythme des obstacles dans les jeux de plateforme. Dans Mario Kart, garde un objet pour te défendre ou profiter d'une occasion."
+      },
+      {
+        name: "Pokémon",
+        aliases: ["pokemon ecarlate", "pokemon violet", "pokemon"],
+        type: "série de jeux d'aventure et de collection de créatures",
+        description: "Dans Pokémon, les joueurs explorent une région, rencontrent et entraînent des Pokémon, puis les font combattre au tour par tour. Chaque type a des forces et des faiblesses.",
+        tip: "Varie les types dans ton équipe et regarde les indications de type pour choisir tes attaques."
+      },
+      {
+        name: "Brawl Stars",
+        aliases: ["brawl stars", "brawl"],
+        type: "jeu d'action multijoueur en petites arènes",
+        description: "Brawl Stars est un jeu d'action multijoueur où l'on choisit un combattant avec ses attaques et capacités. Selon le mode, il faut affronter l'équipe adverse, contrôler une zone ou remplir un objectif.",
+        tip: "Choisis un combattant adapté au mode et joue autour de l'objectif avec ton équipe."
+      },
+      {
+        name: "Clash Royale",
+        aliases: ["clash royale"],
+        type: "jeu de stratégie et de cartes en temps réel",
+        description: "Deux joueurs utilisent des cartes pour invoquer des troupes, des sorts et des bâtiments. Il faut gérer son élixir et détruire les tours adverses avant la fin du match.",
+        tip: "Évite de dépenser tout ton élixir d'un coup et apprends les cartes de ton paquet."
+      },
+      {
+        name: "EA Sports FC",
+        aliases: ["ea sports fc", "ea fc", "fifa 26", "fifa 25", "fifa 24", "fifa"],
+        type: "série de jeux de football",
+        description: "EA Sports FC est une série de jeux de football dans laquelle on peut jouer des matchs, gérer des équipes et participer à différents modes selon l'épisode.",
+        tip: "Utilise les passes pour créer de l'espace et défends en contrôlant un joueur bien placé."
+      },
+      {
+        name: "Super Smash Bros.",
+        aliases: ["super smash bros", "smash bros", "smash ultimate"],
+        type: "jeu de combat avec des personnages Nintendo",
+        description: "Super Smash Bros. réunit des personnages de jeux vidéo dans des combats où le but est d'envoyer les adversaires hors de l'arène. Plus un personnage subit de dégâts, plus il est facile de l'éjecter.",
+        tip: "Apprends les attaques de récupération de ton personnage pour revenir sur le terrain."
+      },
+      {
+        name: "Hollow Knight",
+        aliases: ["hollow knight", "silksong"],
+        type: "jeu d'action et d'exploration en 2D",
+        description: "Hollow Knight est une aventure d'exploration dans un royaume souterrain. On découvre de nouvelles zones, obtient des capacités et affronte des ennemis et des boss.",
+        tip: "Explore les chemins secondaires et prends le temps d'apprendre les attaques des boss."
+      },
+      {
+        name: "Portal",
+        aliases: ["portal 2", "portal"],
+        type: "jeu de réflexion et d'énigmes à la première personne",
+        description: "Portal est une série d'énigmes où l'on utilise un générateur de portails pour relier deux surfaces et résoudre des défis de déplacement et de physique. Portal 2 propose aussi un mode coopératif.",
+        tip: "Cherche comment conserver ton élan ou atteindre une surface éloignée avec les portails."
+      },
+      {
+        name: "The Last of Us",
+        aliases: ["the last of us", "last of us"],
+        type: "jeu d'aventure narratif et de survie",
+        description: "The Last of Us est une série d'aventures scénarisées dans un monde post-apocalyptique. Elle mêle exploration, discrétion, gestion de ressources et combats.",
+        tip: "Observe les lieux avant d'agir et économise tes ressources : l'exploration peut révéler des objets utiles."
+      }
+    ];
+    const gamingTerms = [
+      {
+        aliases: ["battle royale"],
+        answer: "Un battle royale est un mode où beaucoup de joueurs ou d'équipes commencent sur une grande carte et cherchent à être les derniers encore en jeu. La zone disponible rétrécit souvent au fil de la partie. Fortnite, Apex Legends et PUBG en sont des exemples."
+      },
+      {
+        aliases: ["first person shooter", "fps"],
+        answer: "FPS veut souvent dire « first-person shooter » : un jeu de tir à la première personne, vu à travers les yeux du personnage, comme Valorant ou Counter-Strike. En informatique, FPS peut aussi désigner le nombre d'images affichées par seconde."
+      },
+      {
+        aliases: ["moba"],
+        answer: "MOBA veut dire « multiplayer online battle arena ». Deux équipes contrôlent des personnages aux capacités différentes et coopèrent pour atteindre un objectif sur une carte. League of Legends en est un exemple."
+      },
+      {
+        aliases: ["jeu de role", "rpg"],
+        answer: "Un RPG est un jeu de rôle : tu incarnes un personnage qui progresse, améliore ses capacités et vit une aventure. Certains RPG sont scénarisés, d'autres laissent beaucoup de liberté."
+      },
+      {
+        aliases: ["cooperatif", "coop"],
+        answer: "Un jeu coopératif se joue en équipe contre les défis du jeu. Parmi les jeux qui proposent des expériences coopératives, on trouve Minecraft et Portal 2. Les modes disponibles dépendent du jeu et de sa version."
+      },
+      {
+        aliases: ["crossplay", "jeu multiplateforme"],
+        answer: "Le crossplay permet aux personnes jouant sur différentes plateformes de jouer ensemble, quand le jeu le propose. La disponibilité dépend du jeu, de son mode et parfois des paramètres de compte."
+      },
+      {
+        aliases: ["latence", "ping"],
+        answer: "Le ping mesure le temps que met une information à faire l'aller-retour entre ton appareil et le serveur, généralement en millisecondes. Plus il est bas et stable, plus les commandes semblent réactives."
+      },
+      {
+        aliases: ["skin", "skins"],
+        answer: "Un skin est un élément cosmétique qui change l'apparence d'un personnage, d'une arme ou d'un objet sans forcément changer ses capacités."
+      }
+    ];
+
+    function normalizeChatText(value) {
+      return value.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim()
+        .replace(/\s+/g, " ");
+    }
+
+    function findLocalKnowledge(entries, text) {
+      const paddedText = ` ${text} `;
+      const matches = [];
+      for (const entry of entries) {
+        for (const alias of entry.aliases) {
+          const normalizedAlias = normalizeChatText(alias);
+          if (paddedText.includes(` ${normalizedAlias} `)) {
+            matches.push({ entry, aliasLength: normalizedAlias.length });
+          }
+        }
+      }
+      matches.sort((first, second) => second.aliasLength - first.aliasLength);
+      return matches[0]?.entry || null;
+    }
+
+    function answerLocalQuestion(question) {
+      const text = normalizeChatText(question);
+      if (/\b(bonjour|salut|hello|coucou|hey)\b/.test(text)) {
+        return "Salut ! Tu peux me demander comment marche un mini-jeu, comment saisir ton cube ou poser une question sur un jeu vidéo.";
+      }
+      if (text.includes("aim") || text.includes("viser") || text.includes("precision")) {
+        return "Pour le test d'aim, clique sur « Démarrer », puis touche les cibles le plus vite possible pendant 15 secondes. Le meilleur score est gardé sur cet appareil. Conseil : vise avec de petits mouvements réguliers.";
+      }
+      if (text.includes("reflex") || text.includes("reaction")) {
+        return "Dans le test de réflexes, lance un nouveau test, attends que la zone devienne verte, puis clique. Si tu cliques avant, le test repart à zéro. Ton meilleur temps reste sur cet appareil.";
+      }
+      if (text.includes("speed") || text.includes("clic")) {
+        return "Le speed test mesure tes clics pendant 5 secondes. Lance le jeu, puis clique dans la zone aussi vite que possible jusqu'à la fin du chrono.";
+      }
+      if (text.includes("rubik") || text.includes("cube")) {
+        return "Dans le solveur, tiens le cube avec le haut en haut et l'avant devant toi. Sélectionne une couleur dans la palette, clique sur les cases correspondantes, puis vérifie qu'il y a 9 cases de chaque couleur. Les cases du centre indiquent la couleur de chaque face.";
+      }
+      if (text.includes("couleur") || text.includes("sticker") || text.includes("case")) {
+        return "Choisis une couleur en bas du cube déplié, puis clique toutes les cases de cette couleur. Les lettres signifient U haut, D bas, F devant, B derrière, L gauche et R droite. Chaque couleur doit apparaître exactement 9 fois.";
+      }
+      if (text.includes("solution") || text.includes("mouvement") || text.includes("tourner")) {
+        return "Le solveur affiche un mouvement à la fois. R signifie face droite, U haut, F avant, L gauche, D bas et B arrière. Une apostrophe (par exemple R') inverse le sens ; le chiffre 2 indique un demi-tour. Garde le cube dans la même orientation.";
+      }
+      if (text.includes("jeu") || text.includes("gaming") || text.includes("gamer") || text.includes("conseil")) {
+        return "Conseil gaming général : ajuste la sensibilité à ton confort, fais de courtes pauses et entraîne-toi sur un objectif à la fois. Pour un conseil précis, indique le nom du jeu et ce que tu veux améliorer. Je n'ai pas accès aux actus ou aux données en temps réel.";
+      }
+      if (text.includes("merci")) return "Avec plaisir ! Bonne partie et GG !";
+      return null;
+    }
+
+    function answerFromGameKnowledge(question) {
+      const text = normalizeChatText(question);
+      const game = findLocalKnowledge(gameKnowledge, text);
+      if (game) {
+        const asksForTips = /\b(comment jouer|comment gagner|conseil|astuce|debuter|debutant|progresser|ameliorer|jouer a)\b/.test(text);
+        const article = /^(plateforme|franchise|série)\b/.test(game.type) ? "une" : "un";
+        const introduction = `${game.name}, c'est ${article} ${game.type}. ${game.description}`;
+        return asksForTips ? `${introduction} Conseil pour commencer : ${game.tip}` : introduction;
+      }
+      const gamingTerm = findLocalKnowledge(gamingTerms, text);
+      return gamingTerm?.answer || null;
+    }
+
+    async function searchWikipedia(question) {
+      const endpoint = new URL("https://fr.wikipedia.org/w/api.php");
+      endpoint.search = new URLSearchParams({
+        action: "query",
+        generator: "search",
+        gsrsearch: question,
+        gsrnamespace: "0",
+        gsrwhat: "text",
+        gsrlimit: "1",
+        prop: "extracts",
+        exintro: "1",
+        explaintext: "1",
+        format: "json",
+        origin: "*"
+      });
+
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 10000);
+      try {
+        const response = await fetch(endpoint, { signal: controller.signal });
+        if (!response.ok) throw new Error(`Wikipédia a répondu avec le statut ${response.status}.`);
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.info || "Wikipédia a renvoyé une erreur.");
+        const page = Object.values(data.query?.pages || {})[0];
+        const extract = page?.extract?.trim();
+        if (!page?.title || !extract) return null;
+
+        const maxLength = 1000;
+        const summary = extract.length > maxLength
+          ? `${extract.slice(0, maxLength).replace(/\s+\S*$/, "")}…`
+          : extract;
+        return {
+          text: summary,
+          source: {
+            title: page.title,
+            url: `https://fr.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, "_"))}`
+          }
+        };
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    }
+
+    async function answerQuestion(question) {
+      const localAnswer = answerLocalQuestion(question);
+      if (localAnswer) return { text: localAnswer };
+
+      try {
+        const wikipediaAnswer = await searchWikipedia(question);
+        if (wikipediaAnswer) return wikipediaAnswer;
+        const localGameAnswer = answerFromGameKnowledge(question);
+        if (localGameAnswer) {
+          return {
+            text: `Je n'ai pas trouvé d'article Wikipédia correspondant. Voici ma réponse hors ligne : ${localGameAnswer}`
+          };
+        }
+        return {
+          text: "Je n'ai pas trouvé d'article Wikipédia correspondant. Essaie avec le nom du jeu ou quelques mots plus précis."
+        };
+      } catch (error) {
+        const localGameAnswer = answerFromGameKnowledge(question);
+        const problem = error instanceof Error && error.name === "AbortError"
+          ? "La recherche Wikipédia a dépassé le délai prévu."
+          : "Je n'arrive pas à joindre Wikipédia pour le moment.";
+        return {
+          text: localGameAnswer
+            ? `${problem} Voici ma réponse hors ligne : ${localGameAnswer}`
+            : `${problem} Vérifie ta connexion et réessaie.`
+        };
+      }
+    }
+
+    chatForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const question = chatInput.value.trim();
+      if (!question) return;
+      addChatMessage(question, "user");
+      chatInput.value = "";
+      const submitButton = chatForm.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      chatInput.disabled = true;
+      const pendingMessage = document.createElement("div");
+      pendingMessage.className = "chat-message";
+      pendingMessage.textContent = "Je cherche sur Wikipédia…";
+      chatMessages.append(pendingMessage);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      try {
+        const answer = await answerQuestion(question);
+        pendingMessage.remove();
+        addChatMessage(answer.text, "assistant", answer.source);
+      } finally {
+        submitButton.disabled = false;
+        chatInput.disabled = false;
+        chatInput.focus();
+      }
+    });
+  </script>
+</body>
+</html>
