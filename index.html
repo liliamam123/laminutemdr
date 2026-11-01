@@ -220,10 +220,21 @@
     .chat-input { min-width: 0; flex: 1; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(8,7,11,.55); color: var(--text); }
     .chat-form .button { min-height: 44px; margin: 0; padding-inline: 14px; }
     .chat-disclaimer { margin: 9px 0 0 !important; color: var(--muted) !important; font-size: 11px !important; }
-    .news-card { min-height: 190px; padding: 22px; }
+    .news-card { min-height: 190px; padding: 0; overflow: hidden; }
+    .news-image-link { display: block; overflow: hidden; background: rgba(8,7,11,.55); }
+    .news-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform .25s; }
+    .news-image-link:hover .news-image { transform: scale(1.04); }
+    .news-image-fallback { display: grid; width: 100%; aspect-ratio: 16 / 9; place-items: center; background: radial-gradient(circle, rgba(255,118,46,.2), rgba(8,7,11,.65)); font-size: 46px; }
+    .news-copy { padding: 18px 20px 20px; }
     .news-label { color: var(--orange); font-size: 11px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
     .news-card h3 { margin-top: 12px; }
+    .news-card h3 a { text-decoration: none; }
+    .news-card h3 a:hover, .news-card h3 a:focus-visible { color: var(--yellow); }
     .news-note { margin-top: 18px !important; font-size: 12px !important; }
+    .news-tools { display: flex; align-items: center; gap: 12px; }
+    .news-tools .button { margin: 0; white-space: nowrap; }
+    .news-status { margin-top: 14px; color: var(--muted); font-size: 13px; }
+    .news-attribution { margin: 16px 0 0; color: var(--muted); font-size: 11px; }
     .footer { margin-top: 20px; border-top: 1px solid var(--line); }
     .footer-inner { display: flex; justify-content: space-between; gap: 20px; padding-block: 24px; color: var(--muted); font-size: 13px; }
     .footer strong { color: var(--text); }
@@ -241,6 +252,7 @@
       .move-visual-copy { text-align: center; }
       .chat-card { min-height: 420px; }
       .section-head { align-items: start; flex-direction: column; }
+      .news-tools { width: 100%; align-items: stretch; flex-direction: column; }
       .appearance-card { align-items: stretch; flex-direction: column; gap: 12px; }
       .theme-select { width: 100%; }
       .nav-links { display: none; position: absolute; top: 69px; left: 0; right: 0; padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--bg); }
@@ -484,13 +496,15 @@
     <section class="section wrap" id="actus">
       <div class="section-head">
         <div><div class="eyebrow">À suivre</div><h2>Le coin actus</h2></div>
-        <p>Un espace prêt à accueillir tes prochaines nouvelles, vidéos et annonces.</p>
+        <div class="news-tools">
+          <p>Les dernières actualités et leurs images, mises à jour à l'ouverture du site.</p>
+          <button class="button secondary" id="refresh-news" type="button">Actualiser</button>
+        </div>
       </div>
-      <div class="grid">
-        <article class="card news-card"><div class="news-label">Bientôt sur LMM</div><h3>Les actus arrivent ici</h3><p>Ajoute ici tes nouveautés gaming, tes vidéos ou tes découvertes du moment.</p><p class="news-note">À compléter avec tes propres actus.</p></article>
-        <article class="card news-card"><div class="news-label">Prochain défi</div><h3>Quel record vas-tu battre ?</h3><p>Partage les meilleurs scores de la communauté et relance le défi la prochaine fois.</p><p class="news-note">Les scores des jeux restent sur cet appareil.</p></article>
-        <article class="card news-card"><div class="news-label">Communauté</div><h3>LaMinuteMDR, c'est vous aussi</h3><p>Une idée de mini-jeu ou un sujet à tester ? Garde cette carte pour annoncer la suite.</p><p class="news-note">GG à tous les joueurs !</p></article>
-      </div>
+      <p class="news-status" id="news-status" role="status" aria-live="polite">Recherche des dernières actualités…</p>
+      <div class="grid" id="news-grid" aria-live="polite"></div>
+      <p class="news-attribution">Actualités et images fournies par JeuxVideo.com. Clique sur un article pour lire la source.</p>
+      <noscript><p class="news-status">Active JavaScript pour charger les actualités.</p></noscript>
     </section>
   </main>
 
@@ -1423,6 +1437,117 @@
       solverMessage.textContent = "Le cube affiché est résolu. Remplace les couleurs pour commencer.";
       renderCubeInput();
     });
+
+    const newsGrid = document.querySelector("#news-grid");
+    const newsStatus = document.querySelector("#news-status");
+    const refreshNewsButton = document.querySelector("#refresh-news");
+    async function loadGamingNews() {
+      refreshNewsButton.disabled = true;
+      newsStatus.textContent = "Recherche des dernières actualités gaming…";
+      const feedUrl = "https://www.jeuxvideo.com/rss/rss.xml";
+      const apiUrl = new URL("https://api.rss2json.com/v1/api.json");
+      apiUrl.searchParams.set("rss_url", feedUrl);
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 12000);
+      try {
+        const response = await fetch(apiUrl, { signal: controller.signal, cache: "no-store" });
+        if (!response.ok) throw new Error(`Le service d'actualités a répondu ${response.status}.`);
+        const result = await response.json();
+        if (result.status !== "ok" || !Array.isArray(result.items)) {
+          throw new Error("Le flux d'actualités n'a pas renvoyé de résultats valides.");
+        }
+        const items = result.items.filter((item) => typeof item.title === "string" && typeof item.link === "string").slice(0, 6);
+        if (items.length === 0) throw new Error("Aucune actualité gaming n'a été trouvée.");
+
+        const cards = items.map((item) => {
+          const articleUrl = new URL(item.link);
+          if (articleUrl.protocol !== "https:") throw new Error("Le flux contient un lien d'actualité non sécurisé.");
+          const card = document.createElement("article");
+          card.className = "card news-card";
+          const imageLink = document.createElement("a");
+          imageLink.className = "news-image-link";
+          imageLink.href = articleUrl.href;
+          imageLink.target = "_blank";
+          imageLink.rel = "noopener noreferrer";
+          imageLink.setAttribute("aria-label", `Lire l'article : ${item.title}`);
+          const imageUrlValue = item.enclosure?.link || item.thumbnail;
+          let imageUrl = null;
+          if (typeof imageUrlValue === "string" && imageUrlValue) {
+            const candidate = new URL(imageUrlValue);
+            if (candidate.protocol === "https:") imageUrl = candidate;
+          }
+          if (imageUrl) {
+            const image = document.createElement("img");
+            image.className = "news-image";
+            image.src = imageUrl.href;
+            image.alt = `Illustration de l'article : ${item.title}`;
+            image.loading = "lazy";
+            image.decoding = "async";
+            image.referrerPolicy = "no-referrer";
+            image.addEventListener("error", () => {
+              const placeholder = document.createElement("div");
+              placeholder.className = "news-image-fallback";
+              placeholder.setAttribute("aria-hidden", "true");
+              placeholder.textContent = "🎮";
+              imageLink.replaceChildren(placeholder);
+            }, { once: true });
+            imageLink.append(image);
+          } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "news-image-fallback";
+            placeholder.setAttribute("aria-hidden", "true");
+            placeholder.textContent = "🎮";
+            imageLink.append(placeholder);
+          }
+          const label = document.createElement("div");
+          label.className = "news-label";
+          const date = new Date(item.pubDate);
+          label.textContent = Number.isNaN(date.getTime())
+            ? "JeuxVideo.com"
+            : `JeuxVideo.com · ${new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" }).format(date)}`;
+          const heading = document.createElement("h3");
+          const link = document.createElement("a");
+          link.href = articleUrl.href;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = item.title;
+          heading.append(link);
+          const note = document.createElement("p");
+          note.className = "news-note";
+          note.textContent = "Lire l'article sur JeuxVideo.com ↗";
+          const copy = document.createElement("div");
+          copy.className = "news-copy";
+          copy.append(label, heading, note);
+          card.replaceChildren(imageLink, copy);
+          return card;
+        });
+        newsGrid.replaceChildren(...cards);
+        newsStatus.textContent = `Actualités mises à jour le ${new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date())}.`;
+      } catch (error) {
+        const message = error instanceof Error && error.name === "AbortError"
+          ? "La recherche a pris trop de temps."
+          : error instanceof Error
+            ? error.message
+            : "Erreur inconnue pendant la recherche.";
+        newsStatus.textContent = `Impossible de charger les actualités : ${message} Vérifie ta connexion ou réessaie.`;
+        const searchLink = document.createElement("a");
+        searchLink.href = "https://www.jeuxvideo.com/";
+        searchLink.target = "_blank";
+        searchLink.rel = "noopener noreferrer";
+        searchLink.textContent = "Ouvrir JeuxVideo.com";
+        const fallback = document.createElement("article");
+        fallback.className = "card news-card";
+        const heading = document.createElement("h3");
+        heading.append(searchLink);
+        fallback.append(heading);
+        newsGrid.replaceChildren(fallback);
+      } finally {
+        window.clearTimeout(timeout);
+        refreshNewsButton.disabled = false;
+      }
+    }
+    refreshNewsButton.addEventListener("click", loadGamingNews);
+    loadGamingNews();
 
     const chatForm = document.querySelector("#chat-form");
     const chatInput = document.querySelector("#chat-input");
