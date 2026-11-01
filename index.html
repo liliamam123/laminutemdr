@@ -10,6 +10,11 @@
     :root {
       color-scheme: dark;
       --bg: #100b12;
+      --page-background:
+        radial-gradient(ellipse at 82% 0%, rgba(255, 67, 93, .12), transparent 34rem),
+        radial-gradient(ellipse at 4% 28%, rgba(255, 118, 46, .09), transparent 32rem),
+        linear-gradient(180deg, #100b12, #0d0a11 72%);
+      --topbar-background: rgba(16, 11, 18, .82);
       --panel: #19131d;
       --panel-light: #241a27;
       --text: #fff9f3;
@@ -21,14 +26,33 @@
       --glow: 0 0 36px rgba(255, 106, 26, .17);
     }
 
+    body[data-theme="ocean"] {
+      --page-background:
+        radial-gradient(ellipse at 82% 0%, rgba(45, 122, 255, .2), transparent 34rem),
+        radial-gradient(ellipse at 4% 28%, rgba(28, 211, 190, .12), transparent 32rem),
+        linear-gradient(180deg, #08121e, #071018 72%);
+      --topbar-background: rgba(8, 18, 30, .86);
+    }
+    body[data-theme="forest"] {
+      --page-background:
+        radial-gradient(ellipse at 82% 0%, rgba(73, 193, 104, .16), transparent 34rem),
+        radial-gradient(ellipse at 4% 28%, rgba(201, 188, 60, .1), transparent 32rem),
+        linear-gradient(180deg, #10170f, #0a110c 72%);
+      --topbar-background: rgba(16, 23, 15, .86);
+    }
+    body[data-theme="violet"] {
+      --page-background:
+        radial-gradient(ellipse at 82% 0%, rgba(155, 91, 255, .2), transparent 34rem),
+        radial-gradient(ellipse at 4% 28%, rgba(63, 117, 255, .12), transparent 32rem),
+        linear-gradient(180deg, #130d20, #0d0a16 72%);
+      --topbar-background: rgba(19, 13, 32, .86);
+    }
+
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      background:
-        radial-gradient(ellipse at 82% 0%, rgba(255, 67, 93, .12), transparent 34rem),
-        radial-gradient(ellipse at 4% 28%, rgba(255, 118, 46, .09), transparent 32rem),
-        linear-gradient(180deg, #100b12, #0d0a11 72%);
+      background: var(--page-background);
       color: var(--text);
       font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
     }
@@ -40,7 +64,7 @@
       z-index: 5;
       top: 0;
       border-bottom: 1px solid var(--line);
-      background: rgba(16, 11, 18, .82);
+      background: var(--topbar-background);
       backdrop-filter: blur(14px);
     }
     .nav { min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
@@ -89,6 +113,12 @@
 
     section { scroll-margin-top: 90px; }
     .section { padding-block: 52px 76px; }
+    .appearance-section { padding-block: 0 24px; }
+    .appearance-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 22px; }
+    .appearance-card h2 { margin: 3px 0 0; font-size: 18px; }
+    .appearance-card p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .theme-select { min-width: 190px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--text); font: inherit; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
     .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
     .section-head h2 { margin: 5px 0 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.04em; }
     .section-head p { max-width: 440px; margin: 0; color: var(--muted); }
@@ -105,10 +135,24 @@
     .game-card p { min-height: 44px; }
     .game-card .button { width: 100%; margin-top: 17px; }
     .game-status { min-height: 24px !important; margin-top: 10px !important; color: var(--yellow) !important; font-size: 13px !important; }
+    .game-control { min-width: 44px; min-height: 44px; border: 1px solid rgba(255, 212, 71, .22); border-radius: 12px; background: #0d0a10; color: var(--text); cursor: pointer; touch-action: manipulation; }
+    .game-control:disabled { cursor: not-allowed; opacity: .6; }
+    .game-pad { display: grid; width: 100%; min-height: 130px; place-items: center; margin-top: 14px; padding: 18px; color: var(--yellow); font-size: 19px; font-weight: 900; }
+    .memory-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+    .memory-button { min-height: 58px; font-size: 24px; }
+    .memory-button.active { border-color: var(--yellow); background: var(--orange); box-shadow: 0 0 22px rgba(255, 106, 26, .45); }
+    .tic-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 14px; }
+    .tic-cell { aspect-ratio: 1; font-size: 28px; font-weight: 900; }
+    .game-form { display: flex; gap: 8px; margin-top: 14px; }
+    .game-input { min-width: 0; min-height: 44px; flex: 1; padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(8,7,11,.55); color: var(--text); font: inherit; }
+    .game-form .game-control { padding-inline: 14px; color: var(--yellow); font-weight: 800; }
+    .pair-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin-top: 14px; }
+    .pair-card { min-height: 58px; font-size: 22px; }
+    .pair-card.matched { border-color: rgba(59, 255, 135, .5); background: #174b2d; }
     .arena { position: relative; height: 190px; margin-top: 14px; overflow: hidden; border: 1px solid rgba(255, 212, 71, .22); border-radius: 13px; background: #0d0a10; }
     .target { position: absolute; display: none; width: 34px; height: 34px; border: 3px solid #fff3cc; border-radius: 50%; background: var(--red); box-shadow: 0 0 18px rgba(255, 53, 72, .8); cursor: crosshair; }
     .target::after { position: absolute; content: ""; inset: 7px; border-radius: 50%; background: var(--yellow); }
-    .reflex-pad { display: grid; min-height: 190px; place-items: center; margin-top: 14px; border: 1px solid rgba(255, 212, 71, .22); border-radius: 13px; background: #0d0a10; color: var(--muted); text-align: center; cursor: pointer; user-select: none; }
+    .reflex-pad { display: grid; min-height: 190px; place-items: center; margin-top: 14px; border: 1px solid rgba(255, 212, 71, .22); border-radius: 13px; background: #0d0a10; color: var(--muted); text-align: center; cursor: pointer; user-select: none; touch-action: manipulation; }
     .reflex-pad.ready { background: #174b2d; color: white; box-shadow: inset 0 0 28px rgba(59, 255, 135, .16); }
     .reflex-pad.early { background: #531b25; }
     .solver-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 18px; align-items: start; }
@@ -192,6 +236,8 @@
       .move-visual-copy { text-align: center; }
       .chat-card { min-height: 420px; }
       .section-head { align-items: start; flex-direction: column; }
+      .appearance-card { align-items: stretch; flex-direction: column; gap: 12px; }
+      .theme-select { width: 100%; }
       .nav-links { display: none; position: absolute; top: 69px; left: 0; right: 0; padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--bg); }
       .nav-links.open { display: grid; gap: 14px; }
       .menu-button { display: block; }
@@ -204,6 +250,10 @@
       .cube-net { gap: 4px; }
       .face { padding: 4px; }
       .face-name { font-size: 9px; }
+      .target { width: 46px; height: 46px; }
+      .target::after { inset: 10px; }
+      .game-form { flex-wrap: wrap; }
+      .game-form .game-control { flex: 1 1 100%; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
@@ -220,6 +270,7 @@
       <div class="nav-links" id="nav-links">
         <a href="#decouvrir">Découvrir</a>
         <a href="#mini-jeux">Mini-jeux</a>
+        <a href="#apparence">Fond du site</a>
         <a href="#rubik">Solveur cube</a>
         <a href="#assistant">Assistant</a>
         <a href="#actus">Actus</a>
@@ -241,6 +292,25 @@
       <div class="hero-art" aria-label="Illustration d'un Rubik's Cube aux couleurs néon">
         <div class="cube" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="floating-tag">🎮 Mode chill activé</div>
+      </div>
+    </section>
+
+    <section class="section wrap appearance-section" id="apparence" aria-labelledby="appearance-title">
+      <div class="card appearance-card">
+        <div>
+          <div class="eyebrow">Personnalisation</div>
+          <h2 id="appearance-title">Choisis l'ambiance du site</h2>
+          <p>Ton choix est enregistré sur cet appareil.</p>
+        </div>
+        <label>
+          <span class="sr-only">Arrière-plan du site</span>
+          <select class="theme-select" id="theme-select">
+            <option value="neon">Néon LMM</option>
+            <option value="ocean">Océan bleu</option>
+            <option value="forest">Forêt verte</option>
+            <option value="violet">Violet spatial</option>
+          </select>
+        </label>
       </div>
     </section>
 
@@ -271,7 +341,7 @@
     <section class="section wrap" id="mini-jeux">
       <div class="section-head">
         <div><div class="eyebrow">À toi de jouer</div><h2>Les mini-jeux LMM</h2></div>
-        <p>Pas besoin de télécharger quoi que ce soit. Lance un jeu et tente de battre ton score.</p>
+        <p>9 jeux gratuits dans ton navigateur, sur ordinateur comme sur téléphone. Lance un défi et tente de battre ton score !</p>
       </div>
       <div class="grid">
         <article class="card game-card">
@@ -296,6 +366,60 @@
           <div class="reflex-pad" id="reflex-pad" role="button" tabindex="0" aria-label="Zone du test de réflexes">Clique pour commencer</div>
           <p class="game-status" id="reflex-status" aria-live="polite">Ton meilleur temps : <span id="reflex-best">—</span></p>
           <button class="button" id="reflex-start" type="button">Nouveau test</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">⌨️</div><h3>Spacebar Clicker</h3>
+          <p>En 10 secondes, appuie le plus vite possible sur la barre Espace ou sur le gros bouton (parfait sur mobile).</p>
+          <button class="game-control game-pad" id="space-pad" type="button" disabled>Appuie sur Démarrer</button>
+          <p class="game-status" id="space-status" aria-live="polite">Prêt à battre ton record ?</p>
+          <button class="button" id="space-start" type="button">Démarrer le défi</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🧠</div><h3>Mémoire flash</h3>
+          <p>Observe la séquence de couleurs, puis reproduis-la. Chaque niveau ajoute une couleur !</p>
+          <div class="memory-grid" id="memory-grid" aria-label="Boutons de la séquence mémoire">
+            <button class="game-control memory-button" type="button" data-memory="0" aria-label="Rouge">🔴</button>
+            <button class="game-control memory-button" type="button" data-memory="1" aria-label="Jaune">🟡</button>
+            <button class="game-control memory-button" type="button" data-memory="2" aria-label="Bleu">🔵</button>
+            <button class="game-control memory-button" type="button" data-memory="3" aria-label="Vert">🟢</button>
+          </div>
+          <p class="game-status" id="memory-status" aria-live="polite">Lance une partie pour commencer.</p>
+          <button class="button" id="memory-start" type="button">Lancer la partie</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">❎</div><h3>Morpion</h3>
+          <p>Défie un ami sur le même écran : alignez trois symboles pour gagner.</p>
+          <div class="tic-grid" id="tic-grid" aria-label="Grille de morpion"></div>
+          <p class="game-status" id="tic-status" aria-live="polite">Au tour de X.</p>
+          <button class="button" id="tic-reset" type="button">Recommencer</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🔢</div><h3>Nombre mystère</h3>
+          <p>Retrouve le nombre secret entre 1 et 50 avec le moins d'essais possible.</p>
+          <form class="game-form" id="guess-form">
+            <input class="game-input" id="guess-input" type="number" inputmode="numeric" min="1" max="50" step="1" placeholder="Ton nombre" aria-label="Nombre entre 1 et 50" required disabled>
+            <button class="game-control" id="guess-submit" type="submit" disabled>Deviner</button>
+          </form>
+          <p class="game-status" id="guess-status" aria-live="polite">Appuie sur « Nouvelle partie ».</p>
+          <button class="button" id="guess-start" type="button">Nouvelle partie</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">⚡</div><h3>Calcul express</h3>
+          <p>Résous un maximum de calculs en 20 secondes. Un nouveau calcul arrive à chaque bonne réponse.</p>
+          <form class="game-form" id="math-form">
+            <input class="game-input" id="math-input" type="number" inputmode="numeric" placeholder="Ta réponse" aria-label="Réponse au calcul" required disabled>
+            <button class="game-control" id="math-submit" type="submit" disabled>Valider</button>
+          </form>
+          <p class="game-status" id="math-question" aria-live="polite">Prêt ? Appuie sur Démarrer !</p>
+          <p class="game-status" id="math-status" aria-live="polite">Score : 0</p>
+          <button class="button" id="math-start" type="button">Démarrer</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🃏</div><h3>Paires express</h3>
+          <p>Retourne les cartes deux par deux et retrouve les quatre paires en un minimum de coups.</p>
+          <div class="pair-grid" id="pair-grid" aria-label="Cartes du jeu des paires"></div>
+          <p class="game-status" id="pair-status" aria-live="polite">Lance une partie pour mélanger les cartes.</p>
+          <button class="button" id="pair-start" type="button">Mélanger et jouer</button>
         </article>
       </div>
     </section>
@@ -372,6 +496,17 @@
   <script src="https://cdn.jsdelivr.net/npm/cubejs@1.3.2/lib/cube.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/cubejs@1.3.2/lib/solve.js"></script>
   <script>
+    const themeSelect = document.querySelector("#theme-select");
+    const availableThemes = ["neon", "ocean", "forest", "violet"];
+    const savedTheme = localStorage.getItem("lmm-site-theme");
+    const activeTheme = availableThemes.includes(savedTheme) ? savedTheme : "neon";
+    document.body.dataset.theme = activeTheme;
+    themeSelect.value = activeTheme;
+    themeSelect.addEventListener("change", () => {
+      document.body.dataset.theme = themeSelect.value;
+      localStorage.setItem("lmm-site-theme", themeSelect.value);
+    });
+
     const menuButton = document.querySelector("#menu-button");
     const navLinks = document.querySelector("#nav-links");
     menuButton.addEventListener("click", () => {
@@ -528,6 +663,341 @@
         event.preventDefault();
         handleReflexClick();
       }
+    });
+
+    const spacePad = document.querySelector("#space-pad");
+    const spaceStart = document.querySelector("#space-start");
+    const spaceStatus = document.querySelector("#space-status");
+    let spaceScore = 0;
+    let spaceActive = false;
+    let spaceTimer;
+    spaceStart.addEventListener("click", () => {
+      if (spaceActive) return;
+      spaceActive = true;
+      spaceScore = 0;
+      spacePad.disabled = false;
+      spacePad.textContent = "TAPE !";
+      spaceStatus.textContent = "10 secondes : Espace ou bouton !";
+      spaceStart.disabled = true;
+      let remaining = 10;
+      spaceStart.textContent = `${remaining} secondes`;
+      spaceTimer = window.setInterval(() => {
+        remaining -= 1;
+        spaceStart.textContent = `${remaining} seconde${remaining > 1 ? "s" : ""}`;
+        if (remaining <= 0) {
+          window.clearInterval(spaceTimer);
+          spaceActive = false;
+          spacePad.disabled = true;
+          spacePad.textContent = "Terminé !";
+          spaceStart.disabled = false;
+          spaceStart.textContent = "Rejouer";
+          spaceStatus.textContent = `Résultat : ${spaceScore} appui${spaceScore > 1 ? "s" : ""} en 10 secondes.`;
+        }
+      }, 1000);
+    });
+    function registerSpacePress() {
+      if (!spaceActive) return;
+      spaceScore += 1;
+      spaceStatus.textContent = `${spaceScore} appui${spaceScore > 1 ? "s" : ""} — continue !`;
+    }
+    spacePad.addEventListener("click", registerSpacePress);
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      const isTyping = target instanceof HTMLElement && target.closest("input, textarea, select, [contenteditable='true']");
+      if (spaceActive && event.code === "Space" && !event.repeat && !isTyping && target !== spacePad) {
+        event.preventDefault();
+        registerSpacePress();
+      }
+    });
+
+    const memoryButtons = Array.from(document.querySelectorAll("[data-memory]"));
+    const memoryStart = document.querySelector("#memory-start");
+    const memoryStatus = document.querySelector("#memory-status");
+    const memorySequence = [];
+    let memoryInputIndex = 0;
+    let memoryLevel = 0;
+    let memoryToken = 0;
+    async function showMemorySequence(token) {
+      memoryButtons.forEach((button) => { button.disabled = true; });
+      for (const index of memorySequence) {
+        if (token !== memoryToken) return;
+        const button = memoryButtons[index];
+        button.classList.add("active");
+        await new Promise((resolve) => window.setTimeout(resolve, 420));
+        button.classList.remove("active");
+        await new Promise((resolve) => window.setTimeout(resolve, 180));
+      }
+      if (token !== memoryToken) return;
+      memoryInputIndex = 0;
+      memoryButtons.forEach((button) => { button.disabled = false; });
+      memoryStatus.textContent = `À toi ! Reproduis la séquence — niveau ${memoryLevel}.`;
+    }
+    function nextMemoryRound(token) {
+      memoryLevel += 1;
+      memorySequence.push(Math.floor(Math.random() * memoryButtons.length));
+      memoryStatus.textContent = `Observe bien… Niveau ${memoryLevel}`;
+      showMemorySequence(token);
+    }
+    memoryStart.addEventListener("click", () => {
+      memoryToken += 1;
+      const token = memoryToken;
+      memorySequence.length = 0;
+      memoryLevel = 0;
+      memoryInputIndex = 0;
+      memoryStart.disabled = true;
+      nextMemoryRound(token);
+    });
+    memoryButtons.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        if (!memoryStart.disabled) return;
+        if (memorySequence[memoryInputIndex] !== index) {
+          memoryStatus.textContent = `Oups ! Tu as atteint le niveau ${memoryLevel}. Relance pour réessayer.`;
+          memoryStart.disabled = false;
+          memoryButtons.forEach((item) => { item.disabled = true; });
+          return;
+        }
+        memoryInputIndex += 1;
+        if (memoryInputIndex === memorySequence.length) {
+          memoryStatus.textContent = "Bien joué ! Prépare le niveau suivant…";
+          memoryButtons.forEach((item) => { item.disabled = true; });
+          const token = memoryToken;
+          window.setTimeout(() => {
+            if (token === memoryToken) nextMemoryRound(token);
+          }, 550);
+        }
+      });
+    });
+
+    const ticGrid = document.querySelector("#tic-grid");
+    const ticStatus = document.querySelector("#tic-status");
+    const ticCells = Array.from({ length: 9 }, (_, index) => {
+      const button = document.createElement("button");
+      button.className = "game-control tic-cell";
+      button.type = "button";
+      button.setAttribute("aria-label", `Case ${index + 1}`);
+      button.dataset.index = String(index);
+      ticGrid.append(button);
+      return button;
+    });
+    const ticWins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    let ticBoard = Array(9).fill("");
+    let ticTurn = "X";
+    let ticFinished = false;
+    function resetTicTacToe() {
+      ticBoard = Array(9).fill("");
+      ticTurn = "X";
+      ticFinished = false;
+      ticCells.forEach((cell, index) => {
+        cell.textContent = "";
+        cell.disabled = false;
+        cell.setAttribute("aria-label", `Case ${index + 1}, vide`);
+      });
+      ticStatus.textContent = "Au tour de X.";
+    }
+    ticCells.forEach((cell, index) => {
+      cell.addEventListener("click", () => {
+        if (ticFinished || ticBoard[index]) return;
+        ticBoard[index] = ticTurn;
+        cell.textContent = ticTurn;
+        cell.setAttribute("aria-label", `Case ${index + 1}, ${ticTurn}`);
+        const won = ticWins.some((line) => line.every((position) => ticBoard[position] === ticTurn));
+        if (won) {
+          ticStatus.textContent = `${ticTurn} a gagné ! Bien joué !`;
+          ticFinished = true;
+          ticCells.forEach((item) => { item.disabled = true; });
+        } else if (ticBoard.every(Boolean)) {
+          ticStatus.textContent = "Match nul ! Recommencez pour rejouer.";
+          ticFinished = true;
+        } else {
+          ticTurn = ticTurn === "X" ? "O" : "X";
+          ticStatus.textContent = `Au tour de ${ticTurn}.`;
+        }
+      });
+    });
+    document.querySelector("#tic-reset").addEventListener("click", resetTicTacToe);
+
+    const guessForm = document.querySelector("#guess-form");
+    const guessInput = document.querySelector("#guess-input");
+    const guessSubmit = document.querySelector("#guess-submit");
+    const guessStart = document.querySelector("#guess-start");
+    const guessStatus = document.querySelector("#guess-status");
+    let secretNumber = 0;
+    let guessAttempts = 0;
+    let guessFinished = true;
+    guessStart.addEventListener("click", () => {
+      secretNumber = Math.floor(Math.random() * 50) + 1;
+      guessAttempts = 0;
+      guessFinished = false;
+      guessInput.disabled = false;
+      guessSubmit.disabled = false;
+      guessInput.value = "";
+      guessStatus.textContent = "J'ai choisi un nombre entre 1 et 50. À toi !";
+      guessStart.textContent = "Recommencer";
+    });
+    guessForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (guessFinished || !guessInput.reportValidity()) return;
+      const guess = Number(guessInput.value);
+      guessAttempts += 1;
+      if (guess === secretNumber) {
+        guessStatus.textContent = `Bravo ! Trouvé en ${guessAttempts} essai${guessAttempts > 1 ? "s" : ""}.`;
+        guessFinished = true;
+        guessInput.disabled = true;
+        guessSubmit.disabled = true;
+      } else {
+        guessStatus.textContent = `${guess < secretNumber ? "C'est plus !" : "C'est moins !"} Essai n°${guessAttempts}.`;
+        guessInput.select();
+      }
+    });
+
+    const mathForm = document.querySelector("#math-form");
+    const mathInput = document.querySelector("#math-input");
+    const mathSubmit = document.querySelector("#math-submit");
+    const mathStart = document.querySelector("#math-start");
+    const mathQuestion = document.querySelector("#math-question");
+    const mathStatus = document.querySelector("#math-status");
+    let mathAnswer = 0;
+    let mathScore = 0;
+    let mathRemaining = 20;
+    let mathActive = false;
+    let mathTimer;
+    function nextMathQuestion() {
+      const operation = Math.floor(Math.random() * 3);
+      let first = Math.floor(Math.random() * 20) + 1;
+      let second = Math.floor(Math.random() * 20) + 1;
+      if (operation === 0) {
+        mathAnswer = first + second;
+        mathQuestion.textContent = `${first} + ${second} = ?`;
+      } else if (operation === 1) {
+        if (second > first) [first, second] = [second, first];
+        mathAnswer = first - second;
+        mathQuestion.textContent = `${first} − ${second} = ?`;
+      } else {
+        first = Math.floor(Math.random() * 10) + 1;
+        second = Math.floor(Math.random() * 10) + 1;
+        mathAnswer = first * second;
+        mathQuestion.textContent = `${first} × ${second} = ?`;
+      }
+      mathInput.value = "";
+    }
+    mathStart.addEventListener("click", () => {
+      if (mathActive) return;
+      mathActive = true;
+      mathScore = 0;
+      mathRemaining = 20;
+      mathInput.disabled = false;
+      mathSubmit.disabled = false;
+      mathStart.disabled = true;
+      mathStart.textContent = "20 secondes";
+      mathStatus.textContent = "Score : 0";
+      nextMathQuestion();
+      mathTimer = window.setInterval(() => {
+        mathRemaining -= 1;
+        mathStart.textContent = `${mathRemaining} seconde${mathRemaining > 1 ? "s" : ""}`;
+        if (mathRemaining <= 0) {
+          window.clearInterval(mathTimer);
+          mathActive = false;
+          mathInput.disabled = true;
+          mathSubmit.disabled = true;
+          mathStart.disabled = false;
+          mathStart.textContent = "Rejouer";
+          mathQuestion.textContent = "Temps écoulé !";
+          mathStatus.textContent = `Résultat : ${mathScore} bonne${mathScore > 1 ? "s" : ""} réponse${mathScore > 1 ? "s" : ""}.`;
+        }
+      }, 1000);
+    });
+    mathForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!mathActive || !mathInput.reportValidity()) return;
+      if (Number(mathInput.value) === mathAnswer) {
+        mathScore += 1;
+        mathStatus.textContent = `Score : ${mathScore}`;
+        nextMathQuestion();
+      } else {
+        mathStatus.textContent = "Pas tout à fait, retente !";
+        mathInput.select();
+      }
+    });
+
+    const pairGrid = document.querySelector("#pair-grid");
+    const pairStatus = document.querySelector("#pair-status");
+    const pairStart = document.querySelector("#pair-start");
+    const pairSymbols = ["🎮", "🕹️", "🎧", "⚡"];
+    const pairCards = Array.from({ length: 8 }, (_, index) => {
+      const button = document.createElement("button");
+      button.className = "game-control pair-card";
+      button.type = "button";
+      button.dataset.index = String(index);
+      button.textContent = "?";
+      button.setAttribute("aria-label", `Carte ${index + 1}, cachée`);
+      pairGrid.append(button);
+      return button;
+    });
+    let pairDeck = [];
+    let pairOpen = [];
+    let pairMatched = new Set();
+    let pairMoves = 0;
+    let pairActive = false;
+    let pairLocked = false;
+    let pairToken = 0;
+    let pairMismatchTimeout;
+    function hidePairCard(index) {
+      pairCards[index].textContent = "?";
+      pairCards[index].setAttribute("aria-label", `Carte ${index + 1}, cachée`);
+    }
+    pairStart.addEventListener("click", () => {
+      window.clearTimeout(pairMismatchTimeout);
+      pairToken += 1;
+      pairDeck = [...pairSymbols, ...pairSymbols];
+      for (let index = pairDeck.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [pairDeck[index], pairDeck[randomIndex]] = [pairDeck[randomIndex], pairDeck[index]];
+      }
+      pairOpen = [];
+      pairMatched = new Set();
+      pairMoves = 0;
+      pairActive = true;
+      pairLocked = false;
+      pairCards.forEach((card, index) => {
+        card.disabled = false;
+        card.classList.remove("matched");
+        hidePairCard(index);
+      });
+      pairStatus.textContent = "Coups : 0 — retrouve les quatre paires.";
+    });
+    pairCards.forEach((card, index) => {
+      card.addEventListener("click", () => {
+        if (!pairActive || pairLocked || pairMatched.has(index) || pairOpen.includes(index)) return;
+        pairOpen.push(index);
+        card.textContent = pairDeck[index];
+        card.setAttribute("aria-label", `Carte ${index + 1}, ${pairDeck[index]}`);
+        if (pairOpen.length < 2) return;
+        pairMoves += 1;
+        const [first, second] = pairOpen;
+        if (pairDeck[first] === pairDeck[second]) {
+          pairMatched.add(first);
+          pairMatched.add(second);
+          pairCards[first].classList.add("matched");
+          pairCards[second].classList.add("matched");
+          pairOpen = [];
+          if (pairMatched.size === pairCards.length) {
+            pairActive = false;
+            pairStatus.textContent = `Tout trouvé en ${pairMoves} coups ! Bravo !`;
+          } else {
+            pairStatus.textContent = `Coups : ${pairMoves} — paire trouvée !`;
+          }
+        } else {
+          pairLocked = true;
+          pairStatus.textContent = `Coups : ${pairMoves} — pas la même paire.`;
+          const token = pairToken;
+          pairMismatchTimeout = window.setTimeout(() => {
+            if (token !== pairToken) return;
+            pairOpen.forEach(hidePairCard);
+            pairOpen = [];
+            pairLocked = false;
+          }, 750);
+        }
+      });
     });
 
     const cubeFaceOrder = ["U", "R", "F", "D", "L", "B"];
@@ -1215,6 +1685,21 @@
       const text = normalizeChatText(question);
       if (/\b(bonjour|salut|hello|coucou|hey)\b/.test(text)) {
         return "Salut ! Tu peux me demander comment marche un mini-jeu, comment saisir ton cube ou poser une question sur un jeu vidéo.";
+      }
+      if (text.includes("spacebar") || text.includes("barre espace") || text.includes("espace")) {
+        return "Dans Spacebar Clicker, lance le défi puis appuie le plus vite possible sur la barre Espace pendant 10 secondes. Sur téléphone, tu peux appuyer sur le gros bouton à la place.";
+      }
+      if (text.includes("memoire") || text.includes("paires")) {
+        return "Dans Mémoire flash, observe la séquence de couleurs puis reproduis-la dans le même ordre. Dans Paires express, retourne deux cartes à la fois pour retrouver les symboles identiques.";
+      }
+      if (text.includes("morpion")) {
+        return "Le morpion se joue à deux sur le même écran : X et O jouent chacun leur tour. Le premier à aligner trois symboles horizontalement, verticalement ou en diagonale gagne.";
+      }
+      if (text.includes("nombre mystere") || text.includes("nombre secret")) {
+        return "Dans Nombre mystère, un nombre entre 1 et 50 est choisi. Entre une proposition : le jeu te dira si le nombre secret est plus grand ou plus petit.";
+      }
+      if (text.includes("calcul") || text.includes("math")) {
+        return "Dans Calcul express, démarre la partie et résous autant d'additions, soustractions et multiplications que possible en 20 secondes.";
       }
       if (text.includes("aim") || text.includes("viser") || text.includes("precision")) {
         return "Pour le test d'aim, clique sur « Démarrer », puis touche les cibles le plus vite possible pendant 15 secondes. Le meilleur score est gardé sur cet appareil. Conseil : vise avec de petits mouvements réguliers.";
