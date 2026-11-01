@@ -139,8 +139,13 @@
     .game-control:disabled { cursor: not-allowed; opacity: .6; }
     .game-pad { display: grid; width: 100%; min-height: 130px; place-items: center; margin-top: 14px; padding: 18px; color: var(--yellow); font-size: 19px; font-weight: 900; }
     .memory-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
-    .memory-button { min-height: 58px; font-size: 24px; }
-    .memory-button.active { border-color: var(--yellow); background: var(--orange); box-shadow: 0 0 22px rgba(255, 106, 26, .45); }
+    .memory-button { min-height: 68px; font-size: 28px; transition: transform .12s, filter .12s, box-shadow .12s, background .12s; }
+    .memory-button.active, .memory-button.pressed { z-index: 1; transform: scale(.96); filter: brightness(1.45); }
+    .memory-button.active { outline: 2px solid white; outline-offset: 2px; }
+    .memory-button[data-memory="0"].active, .memory-button[data-memory="0"].pressed { border-color: #ff6b76; background: #79232d; box-shadow: 0 0 24px rgba(255, 67, 93, .75); }
+    .memory-button[data-memory="1"].active, .memory-button[data-memory="1"].pressed { border-color: #ffe27a; background: #775c12; box-shadow: 0 0 24px rgba(255, 214, 90, .7); }
+    .memory-button[data-memory="2"].active, .memory-button[data-memory="2"].pressed { border-color: #86caff; background: #174d7c; box-shadow: 0 0 24px rgba(70, 167, 255, .7); }
+    .memory-button[data-memory="3"].active, .memory-button[data-memory="3"].pressed { border-color: #7dffa1; background: #17613a; box-shadow: 0 0 24px rgba(59, 255, 135, .65); }
     .tic-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 14px; }
     .tic-cell { aspect-ratio: 1; font-size: 28px; font-weight: 900; }
     .game-form { display: flex; gap: 8px; margin-top: 14px; }
@@ -714,15 +719,39 @@
     const memoryStart = document.querySelector("#memory-start");
     const memoryStatus = document.querySelector("#memory-status");
     const memorySequence = [];
+    const memoryColorNames = ["Rouge", "Jaune", "Bleu", "Vert"];
+    const memoryFrequencies = [330, 392, 494, 587];
+    let memoryAudioContext;
     let memoryInputIndex = 0;
     let memoryLevel = 0;
     let memoryToken = 0;
+    function playMemoryTone(index) {
+      if (!window.AudioContext) return;
+      memoryAudioContext ||= new window.AudioContext();
+      const oscillator = memoryAudioContext.createOscillator();
+      const volume = memoryAudioContext.createGain();
+      const startAt = memoryAudioContext.currentTime;
+      oscillator.type = "sine";
+      oscillator.frequency.value = memoryFrequencies[index];
+      volume.gain.setValueAtTime(0.0001, startAt);
+      volume.gain.exponentialRampToValueAtTime(0.16, startAt + 0.015);
+      volume.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.2);
+      oscillator.connect(volume);
+      volume.connect(memoryAudioContext.destination);
+      oscillator.start(startAt);
+      oscillator.stop(startAt + 0.21);
+    }
+    function flashMemoryButton(button) {
+      button.classList.add("pressed");
+      window.setTimeout(() => button.classList.remove("pressed"), 180);
+    }
     async function showMemorySequence(token) {
       memoryButtons.forEach((button) => { button.disabled = true; });
       for (const index of memorySequence) {
         if (token !== memoryToken) return;
         const button = memoryButtons[index];
         button.classList.add("active");
+        playMemoryTone(index);
         await new Promise((resolve) => window.setTimeout(resolve, 420));
         button.classList.remove("active");
         await new Promise((resolve) => window.setTimeout(resolve, 180));
@@ -750,15 +779,19 @@
     memoryButtons.forEach((button, index) => {
       button.addEventListener("click", () => {
         if (!memoryStart.disabled) return;
+        playMemoryTone(index);
+        flashMemoryButton(button);
         if (memorySequence[memoryInputIndex] !== index) {
-          memoryStatus.textContent = `Oups ! Tu as atteint le niveau ${memoryLevel}. Relance pour réessayer.`;
+          const expectedColor = memoryColorNames[memorySequence[memoryInputIndex]];
+          memoryStatus.textContent = `Tu as appuyé sur ${memoryColorNames[index]}, mais il fallait ${expectedColor}. Oups ! Niveau ${memoryLevel} — relance pour réessayer.`;
           memoryStart.disabled = false;
           memoryButtons.forEach((item) => { item.disabled = true; });
           return;
         }
         memoryInputIndex += 1;
+        memoryStatus.textContent = `✅ ${memoryColorNames[index]} : bonne réponse !`;
         if (memoryInputIndex === memorySequence.length) {
-          memoryStatus.textContent = "Bien joué ! Prépare le niveau suivant…";
+          memoryStatus.textContent = `🎉 Séquence réussie ! Niveau ${memoryLevel} validé.`;
           memoryButtons.forEach((item) => { item.disabled = true; });
           const token = memoryToken;
           window.setTimeout(() => {
@@ -1683,8 +1716,11 @@
 
     function answerLocalQuestion(question) {
       const text = normalizeChatText(question);
-      if (/\b(bonjour|salut|hello|coucou|hey)\b/.test(text)) {
-        return "Salut ! Tu peux me demander comment marche un mini-jeu, comment saisir ton cube ou poser une question sur un jeu vidéo.";
+      if (/^(bonjour|salut|hello|coucou|hey)$/.test(text)) {
+        return "Bonjour ! Comment puis-je t'aider aujourd'hui ?";
+      }
+      if (/\b(createur|cree|fait|concu|auteur)\b/.test(text) && /\b(site|page)\b/.test(text)) {
+        return "Le créateur de ce site est liliamam123.";
       }
       if (text.includes("spacebar") || text.includes("barre espace") || text.includes("espace")) {
         return "Dans Spacebar Clicker, lance le défi puis appuie le plus vite possible sur la barre Espace pendant 10 secondes. Sur téléphone, tu peux appuyer sur le gros bouton à la place.";
@@ -1822,7 +1858,7 @@
       chatInput.disabled = true;
       const pendingMessage = document.createElement("div");
       pendingMessage.className = "chat-message";
-      pendingMessage.textContent = "Je cherche sur Wikipédia…";
+      pendingMessage.textContent = "Je prépare ma réponse…";
       chatMessages.append(pendingMessage);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       try {
