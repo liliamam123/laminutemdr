@@ -272,6 +272,8 @@
     .footer-inner { display: flex; justify-content: space-between; gap: 20px; padding-block: 24px; color: var(--muted); font-size: 13px; }
     .footer strong { color: var(--text); }
     .footer a { color: var(--yellow); text-decoration: none; }
+    .visitor-counter { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    #visitor-counter iframe { width: 180px; height: 42px; vertical-align: middle; }
     .button:disabled { cursor: wait; filter: saturate(.5); transform: none; }
     :focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
 
@@ -578,16 +580,42 @@
   </main>
 
   <footer class="footer">
-    <div class="footer-inner wrap"><span><strong>LaMinuteMDR</strong> · LMM · Gaming & bonne humeur · <span id="visitor-counter" aria-live="polite">Visites sur cet appareil : 0</span></span><span>Le solveur utilise <a href="https://www.npmjs.com/package/cubejs" target="_blank" rel="noreferrer">cube.js</a> (connexion Internet requise).</span></div>
+    <div class="footer-inner wrap">
+      <span><strong>LaMinuteMDR</strong> · LMM · Gaming & bonne humeur</span>
+      <span class="visitor-counter">🌍 Visites mondiales <span id="visitor-counter" role="status" aria-live="polite">Chargement du compteur…</span></span>
+      <span>Le solveur utilise <a href="https://www.npmjs.com/package/cubejs" target="_blank" rel="noreferrer">cube.js</a> (connexion Internet requise).</span>
+    </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/cubejs@1.3.2/lib/cube.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/cubejs@1.3.2/lib/solve.js"></script>
   <script>
     const visitorCounter = document.querySelector("#visitor-counter");
-    const visitCount = Number(localStorage.getItem("lmm-local-visits") || 0) + 1;
-    localStorage.setItem("lmm-local-visits", String(visitCount));
-    visitorCounter.textContent = `Visites sur cet appareil : ${visitCount}`;
+    const goatCounterScript = document.createElement("script");
+    goatCounterScript.src = "https://gc.zgo.at/count.js";
+    goatCounterScript.dataset.goatcounter = "https://laminutemdr.goatcounter.com/count";
+    goatCounterScript.async = true;
+    goatCounterScript.addEventListener("load", () => {
+      if (typeof window.goatcounter?.visit_count !== "function") {
+        visitorCounter.textContent = "Compteur indisponible";
+        return;
+      }
+      window.goatcounter.visit_count({
+        append: "#visitor-counter",
+        path: "TOTAL",
+        no_branding: true,
+        attr: {
+          width: "180",
+          height: "42",
+          title: "Nombre total de visites du site"
+        },
+        style: "div { border-color: #ff762e; border-radius: 8px; background-color: #19131d; color: #fff9f3; font-family: system-ui, sans-serif; }"
+      });
+    });
+    goatCounterScript.addEventListener("error", () => {
+      visitorCounter.textContent = "Compteur mondial indisponible — réessaie plus tard";
+    });
+    document.head.append(goatCounterScript);
 
     const themeSelect = document.querySelector("#theme-select");
     const availableThemes = ["neon", "ocean", "forest", "violet"];
