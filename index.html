@@ -177,6 +177,30 @@
     .snake-board-wrap[data-snake-theme="candy"] { border-color: rgba(245, 128, 229, .55); background: linear-gradient(145deg, #3e1a50, #20173f); box-shadow: 0 0 22px rgba(231, 82, 214, .18); }
     .snake-board-wrap[data-snake-theme="ocean"] { border-color: rgba(75, 197, 255, .55); background: linear-gradient(145deg, #103d59, #131c42); box-shadow: 0 0 22px rgba(66, 174, 255, .18); }
     .snake-controls { display: grid; width: 156px; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(2, 46px); justify-content: center; gap: 6px; margin: 12px auto 0; }
+    .block-board { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; margin-top: 14px; padding: 7px; border: 1px solid var(--line); border-radius: 14px; background: #0d0a10; touch-action: none; user-select: none; }
+    .block-cell { aspect-ratio: 1; min-width: 0; padding: 0; border: 1px solid rgba(255,255,255,.07); border-radius: 4px; background: #211b27; transition: background .1s, transform .1s, box-shadow .1s; }
+    .block-cell.filled { border-color: rgba(255,255,255,.16); background: linear-gradient(145deg, #ffbd52, #ff634e); box-shadow: inset 0 0 8px rgba(255,255,255,.2); }
+    .block-cell.preview-valid { transform: scale(.92); border-color: rgba(255,255,255,.65); background: linear-gradient(145deg, #b9ff79, #43d5a5); box-shadow: 0 0 10px rgba(103,255,172,.48); }
+    .block-cell.preview-invalid { transform: scale(.92); border-color: rgba(255,255,255,.5); background: linear-gradient(145deg, #ff8792, #c82e52); box-shadow: 0 0 10px rgba(255,67,93,.4); }
+    .block-pieces { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 10px; }
+    .block-piece { min-height: 66px; padding: 7px; border-color: rgba(255,212,71,.25); background: #141019; touch-action: none; user-select: none; cursor: grab; }
+    .block-piece:active { cursor: grabbing; }
+    .block-piece[aria-pressed="true"] { border-color: var(--yellow); box-shadow: 0 0 14px rgba(255,214,90,.2); }
+    .piece-shape { display: grid; grid-template-columns: repeat(4, 10px); grid-template-rows: repeat(4, 10px); justify-content: center; gap: 2px; margin: auto; }
+    .piece-shape i { border-radius: 2px; background: #ff9a45; }
+    .piece-shape i.empty { background: transparent; }
+    .paint-canvas { display: block; width: min(100%, 320px); aspect-ratio: 1; margin: 14px auto 0; border: 1px solid rgba(113,220,255,.3); border-radius: 16px; background: #101b2a; touch-action: none; }
+    .paint-controls, .flappy-controls, .arena-snake-controls { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
+    .paint-controls { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 44px); justify-content: center; }
+    .paint-controls [data-paint-dir="up"] { grid-column: 2; }
+    .paint-controls [data-paint-dir="left"] { grid-column: 1; grid-row: 2; }
+    .paint-controls [data-paint-dir="down"] { grid-column: 2; grid-row: 2; }
+    .paint-controls [data-paint-dir="right"] { grid-column: 3; grid-row: 2; }
+    .flappy-canvas, .arena-snake-canvas { display: block; width: min(100%, 340px); margin: 14px auto 0; border: 1px solid rgba(113,220,255,.3); border-radius: 14px; background: #101b2a; touch-action: manipulation; }
+    .flappy-canvas { aspect-ratio: 4 / 3; }
+    .arena-snake-canvas { aspect-ratio: 4 / 3; touch-action: none; }
+    .arena-snake-controls .game-control { width: 48px; }
+    .arena-snake-boost { min-height: 44px; margin-top: 10px; padding-inline: 20px; touch-action: none; user-select: none; }
     .snake-direction { border-color: rgba(83, 245, 220, .4); background: linear-gradient(145deg, #173943, #17223b); color: #a4fff0; font-size: 22px; font-weight: 900; box-shadow: inset 0 0 14px rgba(83,245,220,.08); }
     .snake-direction:hover { border-color: #69ffe5; background: linear-gradient(145deg, #17645c, #243d73); }
     .snake-board-wrap[data-snake-theme="classic"] ~ .snake-controls .snake-direction { border-color: #7bad40; background: linear-gradient(145deg, #345c2c, #294629); color: #e2ffbc; box-shadow: inset 0 0 14px rgba(176,231,96,.1); }
@@ -393,7 +417,7 @@
     <section class="section wrap" id="mini-jeux">
       <div class="section-head">
         <div><div class="eyebrow">À toi de jouer</div><h2>Les mini-jeux LMM</h2></div>
-        <p>10 jeux gratuits sur ordinateur et téléphone. Tes records restent enregistrés sur cet appareil.</p>
+        <p>14 jeux gratuits sur ordinateur et téléphone. Tes records restent enregistrés sur cet appareil.</p>
       </div>
       <div class="grid">
         <article class="card game-card">
@@ -508,6 +532,51 @@
           </div>
           <p class="snake-help">Ordinateur : flèches ou ZQSD · Mobile : boutons ou glisser sur le plateau</p>
           <button class="button" id="snake-start" type="button">Jouer à Snake</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🧱</div><h3>Blocs express</h3>
+          <p>Fais glisser les formes sur la grille : l'aperçu montre où elles vont tomber. Complète des lignes pour marquer des points.</p>
+          <div class="block-board" id="block-board" aria-label="Grille de blocs 8 par 8"></div>
+          <div class="block-pieces" id="block-pieces" aria-label="Formes à placer"></div>
+          <p class="game-status" id="block-status" aria-live="polite">Choisis une forme, puis une case de départ.</p>
+          <p class="game-status" id="block-score">Score : 0 · Record : 0</p>
+          <button class="button" id="block-start" type="button">Nouvelle partie</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🎨</div><h3>Boule de peinture</h3>
+          <p>La boule roule jusqu'au mur ou au bord et peint toutes les dalles traversées. Termine les niveaux générés au hasard.</p>
+          <canvas class="paint-canvas" id="paint-canvas" width="320" height="320" tabindex="0" role="img" aria-label="Plateau généré de dalles à peindre"></canvas>
+          <p class="game-status" id="paint-status" aria-live="polite">Dalles peintes : 1 / 25</p>
+          <div class="paint-controls" aria-label="Commandes de la boule">
+            <button class="game-control" type="button" data-paint-dir="up" aria-label="Haut">↑</button>
+            <button class="game-control" type="button" data-paint-dir="left" aria-label="Gauche">←</button>
+            <button class="game-control" type="button" data-paint-dir="down" aria-label="Bas">↓</button>
+            <button class="game-control" type="button" data-paint-dir="right" aria-label="Droite">→</button>
+          </div>
+          <button class="button" id="paint-start" type="button">Recommencer</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🐤</div><h3>Flappy LMM</h3>
+          <p>Fais battre les ailes et passe entre les tuyaux. Touche l'écran ou appuie sur Espace.</p>
+          <canvas class="flappy-canvas" id="flappy-canvas" width="320" height="240" role="img" aria-label="Jeu Flappy LMM"></canvas>
+          <p class="game-status" id="flappy-status" aria-live="polite">Appuie sur Jouer, puis touche pour voler.</p>
+          <p class="game-status" id="flappy-record">Record : 0</p>
+          <button class="button" id="flappy-start" type="button">Jouer</button>
+        </article>
+        <article class="card game-card">
+          <div class="icon" aria-hidden="true">🐍</div><h3>Snake Battle</h3>
+          <p>Glisse dans une grande arène contre des rivaux contrôlés par le jeu : mange les orbes, grandis et accélère pour t'échapper.</p>
+          <canvas class="arena-snake-canvas" id="arena-snake-canvas" width="320" height="240" role="img" aria-label="Arène Snake Battle contre des bots"></canvas>
+          <p class="game-status" id="arena-snake-status" aria-live="polite">Dirige-toi au doigt, à la souris ou avec les flèches. Maintiens Maj ou le bouton éclair pour accélérer.</p>
+          <p class="game-status" id="arena-snake-score">Score : 0 · Record : 0</p>
+          <div class="arena-snake-controls" aria-label="Commandes de Snake Battle">
+            <button class="game-control" type="button" data-arena-dir="up" aria-label="Haut">↑</button>
+            <button class="game-control" type="button" data-arena-dir="left" aria-label="Gauche">←</button>
+            <button class="game-control" type="button" data-arena-dir="down" aria-label="Bas">↓</button>
+            <button class="game-control" type="button" data-arena-dir="right" aria-label="Droite">→</button>
+          </div>
+          <button class="game-control arena-snake-boost" id="arena-snake-boost" type="button" aria-label="Maintenir pour accélérer">Maintenir pour accélérer ⚡</button>
+          <button class="button" id="arena-snake-start" type="button">Lancer l'arène</button>
         </article>
       </div>
     </section>
@@ -1602,6 +1671,818 @@
     snakeHasStarted = false;
     snakeStatus.textContent = "Prêt ? Utilise les flèches ou les boutons.";
     resizeSnakeCanvas();
+
+    const blockBoard = document.querySelector("#block-board");
+    const blockPiecesElement = document.querySelector("#block-pieces");
+    const blockStatus = document.querySelector("#block-status");
+    const blockScoreLabel = document.querySelector("#block-score");
+    const blockStart = document.querySelector("#block-start");
+    const blockSize = 8;
+    const blockShapes = [
+      [[0, 0]], [[0, 0], [1, 0]], [[0, 0], [1, 0], [2, 0]],
+      [[0, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [0, 1], [1, 1]],
+      [[0, 0], [1, 0], [2, 0], [1, 1]], [[0, 0], [0, 1], [0, 2], [1, 2]],
+      [[0, 0], [1, 0], [2, 0], [3, 0]]
+    ];
+    let blockCells = [];
+    let blockHand = [];
+    let selectedBlockPiece = -1;
+    let blockScore = 0;
+    let blockBest = Number(localStorage.getItem("lmm-block-best") || 0);
+    let draggingBlockPiece = -1;
+    let previewBlockCell = -1;
+    const blockSquares = Array.from({ length: blockSize * blockSize }, (_, index) => {
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "block-cell";
+      cell.setAttribute("aria-label", `Case ${index + 1}`);
+      cell.addEventListener("click", () => placeBlockShape(index % blockSize, Math.floor(index / blockSize)));
+      blockBoard.append(cell);
+      return cell;
+    });
+    function clearBlockPreview() {
+      previewBlockCell = -1;
+      blockSquares.forEach(cell => cell.classList.remove("preview-valid", "preview-invalid"));
+    }
+    function showBlockPreview(index) {
+      clearBlockPreview();
+      const shape = blockHand[draggingBlockPiece >= 0 ? draggingBlockPiece : selectedBlockPiece];
+      if (!shape || index < 0) return;
+      previewBlockCell = index;
+      const x = index % blockSize;
+      const y = Math.floor(index / blockSize);
+      const valid = canPlaceBlock(shape, x, y);
+      shape.forEach(([dx, dy]) => {
+        const target = blockSquares[(y + dy) * blockSize + x + dx];
+        if (target) target.classList.add(valid ? "preview-valid" : "preview-invalid");
+      });
+    }
+    function blockCellAtPoint(clientX, clientY) {
+      const target = document.elementFromPoint(clientX, clientY);
+      const cell = target instanceof Element ? target.closest(".block-cell") : null;
+      return cell ? blockSquares.indexOf(cell) : -1;
+    }
+    document.addEventListener("pointermove", event => {
+      if (draggingBlockPiece < 0) return;
+      showBlockPreview(blockCellAtPoint(event.clientX, event.clientY));
+    });
+    document.addEventListener("pointerup", event => {
+      if (draggingBlockPiece < 0) return;
+      const cellIndex = blockCellAtPoint(event.clientX, event.clientY);
+      const pieceIndex = draggingBlockPiece;
+      draggingBlockPiece = -1;
+      clearBlockPreview();
+      if (cellIndex >= 0 && blockHand[pieceIndex]) {
+        selectedBlockPiece = pieceIndex;
+        placeBlockShape(cellIndex % blockSize, Math.floor(cellIndex / blockSize));
+      }
+    });
+    document.addEventListener("pointercancel", () => {
+      draggingBlockPiece = -1;
+      clearBlockPreview();
+    });
+    function updateBlockBoard() {
+      blockSquares.forEach((cell, index) => {
+        cell.classList.toggle("filled", blockCells[index]);
+        cell.setAttribute("aria-label", `Case ${index + 1}${blockCells[index] ? ", remplie" : ""}`);
+      });
+      blockScoreLabel.textContent = `Score : ${blockScore} · Record : ${blockBest}`;
+    }
+    function renderBlockHand() {
+      blockPiecesElement.replaceChildren();
+      blockHand.forEach((shape, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "game-control block-piece";
+        button.disabled = !shape;
+        button.setAttribute("aria-pressed", String(selectedBlockPiece === index));
+        button.setAttribute("aria-label", shape ? `Choisir forme ${index + 1}` : `Forme ${index + 1} déjà posée`);
+        if (shape) {
+          const preview = document.createElement("span");
+          preview.className = "piece-shape";
+          for (let y = 0; y < 4; y += 1) {
+            for (let x = 0; x < 4; x += 1) {
+              const square = document.createElement("i");
+              if (!shape.some(([sx, sy]) => sx === x && sy === y)) square.className = "empty";
+              preview.append(square);
+            }
+          }
+          button.append(preview);
+          button.addEventListener("click", () => {
+            selectedBlockPiece = index;
+            renderBlockHand();
+            blockStatus.textContent = "Clique sur la grille pour poser la forme.";
+          });
+          button.addEventListener("pointerdown", event => {
+            if (event.button !== 0 && event.pointerType === "mouse") return;
+            event.preventDefault();
+            draggingBlockPiece = index;
+            selectedBlockPiece = index;
+            blockStatus.textContent = "Glisse la forme sur la grille : vert = placement possible.";
+            blockPiecesElement.querySelectorAll(".block-piece").forEach((piece, pieceIndex) => {
+              piece.setAttribute("aria-pressed", String(pieceIndex === index));
+            });
+            showBlockPreview(blockCellAtPoint(event.clientX, event.clientY));
+          });
+        }
+        blockPiecesElement.append(button);
+      });
+    }
+    function canPlaceBlock(shape, x, y) {
+      return shape.every(([dx, dy]) =>
+        x + dx >= 0 && y + dy >= 0 && x + dx < blockSize && y + dy < blockSize &&
+        !blockCells[(y + dy) * blockSize + x + dx]);
+    }
+    function hasBlockMove() {
+      return blockHand.some(shape => shape && shape.some(([dx, dy]) => {
+        for (let y = 0; y < blockSize; y += 1) {
+          for (let x = 0; x < blockSize; x += 1) {
+            if (canPlaceBlock(shape, x, y)) return true;
+          }
+        }
+        return false;
+      }));
+    }
+    function dealBlockPieces() {
+      blockHand = Array.from({ length: 3 }, () => blockShapes[Math.floor(Math.random() * blockShapes.length)]);
+      selectedBlockPiece = 0;
+      renderBlockHand();
+    }
+    function finishBlockGame() {
+      blockStatus.textContent = `Plus de placement possible. Score final : ${blockScore}.`;
+      if (blockScore > blockBest) {
+        blockBest = blockScore;
+        localStorage.setItem("lmm-block-best", String(blockBest));
+      }
+      blockStart.textContent = "Rejouer";
+      updateBlockBoard();
+    }
+    function placeBlockShape(x, y) {
+      const shape = blockHand[selectedBlockPiece];
+      if (!shape || !canPlaceBlock(shape, x, y)) {
+        blockStatus.textContent = "Cette forme ne rentre pas ici. Essaie une autre case.";
+        return;
+      }
+      shape.forEach(([dx, dy]) => { blockCells[(y + dy) * blockSize + x + dx] = true; });
+      blockScore += shape.length;
+      blockHand[selectedBlockPiece] = null;
+      selectedBlockPiece = blockHand.findIndex(Boolean);
+      const fullRows = Array.from({ length: blockSize }, (_, row) =>
+        blockCells.slice(row * blockSize, (row + 1) * blockSize).every(Boolean));
+      const fullColumns = Array.from({ length: blockSize }, (_, column) =>
+        blockCells.filter((_, index) => index % blockSize === column).every(Boolean));
+      const clearedLines = fullRows.filter(Boolean).length + fullColumns.filter(Boolean).length;
+      if (clearedLines) {
+        blockCells = blockCells.map((filled, index) =>
+          filled && !fullRows[Math.floor(index / blockSize)] && !fullColumns[index % blockSize]);
+        blockScore += clearedLines * 10;
+      }
+      blockStatus.textContent = clearedLines ? `${clearedLines} ligne${clearedLines > 1 ? "s" : ""} complétée${clearedLines > 1 ? "s" : ""} !` : "Bien joué ! Choisis la prochaine forme.";
+      updateBlockBoard();
+      if (!blockHand.some(Boolean)) dealBlockPieces();
+      else renderBlockHand();
+      if (!hasBlockMove()) finishBlockGame();
+    }
+    blockStart.addEventListener("click", () => {
+      blockCells = Array(blockSize * blockSize).fill(false);
+      blockScore = 0;
+      blockStatus.textContent = "Choisis une forme, puis une case de départ.";
+      blockStart.textContent = "Nouvelle partie";
+      dealBlockPieces();
+      updateBlockBoard();
+    });
+    blockStart.click();
+
+    const paintCanvas = document.querySelector("#paint-canvas");
+    const paintContext = paintCanvas.getContext("2d");
+    const paintStatus = document.querySelector("#paint-status");
+    const paintStart = document.querySelector("#paint-start");
+    const paintSize = 4;
+    const paintCellSize = 72;
+    const paintOffset = 16;
+    const paintDirections = {
+      up: { x: 0, y: -1 }, down: { x: 0, y: 1 },
+      left: { x: -1, y: 0 }, right: { x: 1, y: 0 }
+    };
+    let paintWalls = new Set();
+    let paintedTiles = new Set();
+    let paintPosition = { x: 0, y: 0 };
+    let paintLevel = 1;
+    let paintMoving = false;
+    let paintLevelTransition = false;
+    let paintLevelTimeout = 0;
+    let paintAnimation = 0;
+    function paintIsSolvable(walls, start) {
+      let targetMask = (1 << (paintSize * paintSize)) - 1;
+      for (const wall of walls) targetMask &= ~(1 << wall);
+      const startIndex = start.y * paintSize + start.x;
+      const queue = [[startIndex, 1 << startIndex]];
+      const seen = new Set([`${startIndex}:${1 << startIndex}`]);
+      let head = 0;
+      while (head < queue.length && head < 12000) {
+        const [position, mask] = queue[head++];
+        if (mask === targetMask) return true;
+        const x = position % paintSize;
+        const y = Math.floor(position / paintSize);
+        for (const direction of Object.values(paintDirections)) {
+          let nextX = x;
+          let nextY = y;
+          let nextMask = mask;
+          while (true) {
+            const candidateX = nextX + direction.x;
+            const candidateY = nextY + direction.y;
+            if (candidateX < 0 || candidateX >= paintSize || candidateY < 0 || candidateY >= paintSize) break;
+            const candidateIndex = candidateY * paintSize + candidateX;
+            if (walls.has(candidateIndex)) break;
+            nextX = candidateX;
+            nextY = candidateY;
+            nextMask |= 1 << candidateIndex;
+          }
+          const nextPosition = nextY * paintSize + nextX;
+          if (nextPosition === position) continue;
+          const key = `${nextPosition}:${nextMask}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            queue.push([nextPosition, nextMask]);
+          }
+        }
+      }
+      return false;
+    }
+    function generatePaintLevel() {
+      for (let attempt = 0; attempt < 120; attempt += 1) {
+        const wallCount = Math.min(1 + Math.floor(Math.random() * Math.min(5, 2 + Math.floor(paintLevel / 2))), 7);
+        const walls = new Set();
+        while (walls.size < wallCount) walls.add(Math.floor(Math.random() * paintSize * paintSize));
+        const startIndex = Math.floor(Math.random() * paintSize * paintSize);
+        if (walls.has(startIndex)) continue;
+        const start = { x: startIndex % paintSize, y: Math.floor(startIndex / paintSize) };
+        if (!paintIsSolvable(walls, start)) continue;
+        paintWalls = walls;
+        paintPosition = start;
+        paintedTiles = new Set([startIndex]);
+        drawPaintBoard();
+        return;
+      }
+      const walls = new Set([5, 10]);
+      const start = { x: 0, y: 0 };
+      if (paintIsSolvable(walls, start)) {
+        paintWalls = walls;
+        paintPosition = start;
+        paintedTiles = new Set([0]);
+        drawPaintBoard();
+        return;
+      }
+      throw new Error("Impossible de générer un niveau de peinture résoluble.");
+    }
+    function drawPaintBoard() {
+      paintContext.clearRect(0, 0, 320, 320);
+      const background = paintContext.createLinearGradient(0, 0, 320, 320);
+      background.addColorStop(0, "#102e43");
+      background.addColorStop(1, "#17152f");
+      paintContext.fillStyle = background;
+      paintContext.fillRect(0, 0, 320, 320);
+      paintContext.lineWidth = 1;
+      for (let y = 0; y < paintSize; y += 1) {
+        for (let x = 0; x < paintSize; x += 1) {
+          const index = y * paintSize + x;
+          const left = paintOffset + x * paintCellSize;
+          const top = paintOffset + y * paintCellSize;
+          paintContext.beginPath();
+          paintContext.roundRect(left + 3, top + 3, paintCellSize - 6, paintCellSize - 6, 12);
+          if (paintWalls.has(index)) {
+            paintContext.fillStyle = "#182033";
+            paintContext.fill();
+            paintContext.strokeStyle = "rgba(201,215,255,.2)";
+            paintContext.stroke();
+            paintContext.fillStyle = "#73819d";
+            paintContext.font = "bold 30px system-ui";
+            paintContext.textAlign = "center";
+            paintContext.textBaseline = "middle";
+            paintContext.fillText("✦", left + paintCellSize / 2, top + paintCellSize / 2);
+          } else {
+            paintContext.fillStyle = paintedTiles.has(index) ? "#763cbd" : "#26384d";
+            paintContext.fill();
+            paintContext.strokeStyle = paintedTiles.has(index) ? "rgba(255,136,246,.6)" : "rgba(255,255,255,.12)";
+            paintContext.stroke();
+            if (paintedTiles.has(index)) {
+              paintContext.fillStyle = "rgba(255,255,255,.14)";
+              paintContext.beginPath();
+              paintContext.arc(left + 19, top + 18, 3, 0, Math.PI * 2);
+              paintContext.fill();
+            }
+          }
+        }
+      }
+      const ballX = paintOffset + (paintPosition.x + .5) * paintCellSize;
+      const ballY = paintOffset + (paintPosition.y + .5) * paintCellSize;
+      paintContext.save();
+      paintContext.shadowColor = "#ff68dc";
+      paintContext.shadowBlur = 20;
+      const ballGradient = paintContext.createRadialGradient(ballX - 9, ballY - 12, 2, ballX, ballY, 20);
+      ballGradient.addColorStop(0, "#fff5ff");
+      ballGradient.addColorStop(.35, "#ff8be9");
+      ballGradient.addColorStop(1, "#a837e8");
+      paintContext.fillStyle = ballGradient;
+      paintContext.beginPath();
+      paintContext.arc(ballX, ballY, 18, 0, Math.PI * 2);
+      paintContext.fill();
+      paintContext.restore();
+      paintContext.fillStyle = "#39204c";
+      paintContext.beginPath();
+      paintContext.arc(ballX + 5, ballY - 4, 2.2, 0, Math.PI * 2);
+      paintContext.fill();
+      paintContext.textAlign = "left";
+      paintContext.textBaseline = "alphabetic";
+      const floorCount = paintSize * paintSize - paintWalls.size;
+      paintStatus.textContent = `Niveau ${paintLevel} · Dalles peintes : ${paintedTiles.size} / ${floorCount}`;
+    }
+    function movePaintBall(directionName) {
+      if (paintMoving || paintLevelTransition) return;
+      const direction = paintDirections[directionName];
+      if (!direction) return;
+      const path = [];
+      let x = paintPosition.x;
+      let y = paintPosition.y;
+      while (true) {
+        const nextX = x + direction.x;
+        const nextY = y + direction.y;
+        if (nextX < 0 || nextX >= paintSize || nextY < 0 || nextY >= paintSize ||
+            paintWalls.has(nextY * paintSize + nextX)) break;
+        x = nextX;
+        y = nextY;
+        path.push({ x, y, index: y * paintSize + x });
+      }
+      if (!path.length) return;
+      paintMoving = true;
+      const from = { ...paintPosition };
+      const to = path[path.length - 1];
+      const startTime = performance.now();
+      const duration = Math.max(180, path.length * 115);
+      function animatePaint(now) {
+        const progress = Math.min(1, (now - startTime) / duration);
+        const distance = progress * path.length;
+        const passed = Math.min(path.length, Math.floor(distance));
+        for (let i = 0; i < passed; i += 1) paintedTiles.add(path[i].index);
+        paintPosition = progress === 1 ? { x: to.x, y: to.y } : {
+          x: from.x + direction.x * distance,
+          y: from.y + direction.y * distance
+        };
+        drawPaintBoard();
+        if (progress < 1) {
+          paintAnimation = requestAnimationFrame(animatePaint);
+          return;
+        }
+        path.forEach(tile => paintedTiles.add(tile.index));
+        paintPosition = { x: to.x, y: to.y };
+        paintMoving = false;
+        drawPaintBoard();
+        if (paintedTiles.size === paintSize * paintSize - paintWalls.size) {
+          paintLevelTransition = true;
+          paintStatus.textContent = `Niveau ${paintLevel} terminé ! Génération du suivant…`;
+          paintLevelTimeout = window.setTimeout(() => {
+            paintLevel += 1;
+            paintLevelTransition = false;
+            generatePaintLevel();
+          }, 700);
+        }
+      }
+      paintAnimation = requestAnimationFrame(animatePaint);
+    }
+    document.querySelectorAll("[data-paint-dir]").forEach(button => {
+      button.addEventListener("click", () => movePaintBall(button.dataset.paintDir));
+    });
+    paintCanvas.addEventListener("pointerdown", event => {
+      if (paintMoving) return;
+      paintCanvas.focus();
+      const bounds = paintCanvas.getBoundingClientRect();
+      const x = event.clientX - bounds.left - (paintOffset / 320) * bounds.width;
+      const y = event.clientY - bounds.top - (paintOffset / 320) * bounds.height;
+      const deltaX = x - (paintPosition.x + .5) * (paintCellSize / 320) * bounds.width;
+      const deltaY = y - (paintPosition.y + .5) * (paintCellSize / 320) * bounds.height;
+      if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) > 12) {
+        movePaintBall(Math.abs(deltaX) > Math.abs(deltaY) ? (deltaX > 0 ? "right" : "left") : (deltaY > 0 ? "down" : "up"));
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (paintMoving) return;
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || !target.closest("#paint-canvas, .paint-controls")) return;
+      const directions = { arrowup: "up", arrowdown: "down", arrowleft: "left", arrowright: "right", z: "up", s: "down", q: "left", d: "right" };
+      const direction = directions[event.key.toLowerCase()];
+      if (direction) {
+        event.preventDefault();
+        movePaintBall(direction);
+      }
+    });
+    paintStart.addEventListener("click", () => {
+      window.cancelAnimationFrame(paintAnimation);
+      window.clearTimeout(paintLevelTimeout);
+      paintMoving = false;
+      paintLevelTransition = false;
+      paintLevel = 1;
+      generatePaintLevel();
+    });
+    generatePaintLevel();
+
+    const flappyCanvas = document.querySelector("#flappy-canvas");
+    const flappyContext = flappyCanvas.getContext("2d");
+    const flappyStatus = document.querySelector("#flappy-status");
+    const flappyRecord = document.querySelector("#flappy-record");
+    const flappyStart = document.querySelector("#flappy-start");
+    let flappyBest = Number(localStorage.getItem("lmm-flappy-best") || 0);
+    let flappyBirdY = 110;
+    let flappyVelocity = 0;
+    let flappyPipes = [];
+    let flappyScore = 0;
+    let flappyActive = false;
+    let flappyFrame = 0;
+    let flappyAnimation = 0;
+    flappyRecord.textContent = `Record : ${flappyBest}`;
+    function drawFlappy() {
+      flappyContext.clearRect(0, 0, 320, 240);
+      const sky = flappyContext.createLinearGradient(0, 0, 0, 240);
+      sky.addColorStop(0, "#203d66"); sky.addColorStop(1, "#44a5a1");
+      flappyContext.fillStyle = sky; flappyContext.fillRect(0, 0, 320, 240);
+      flappyContext.fillStyle = "#baf0d0"; flappyContext.fillRect(0, 216, 320, 24);
+      flappyPipes.forEach(pipe => {
+        flappyContext.fillStyle = "#8df06f";
+        flappyContext.fillRect(pipe.x, 0, 38, pipe.gapTop);
+        flappyContext.fillRect(pipe.x, pipe.gapTop + 72, 38, 216 - pipe.gapTop - 72);
+        flappyContext.fillStyle = "#63c94d";
+        flappyContext.fillRect(pipe.x - 3, pipe.gapTop - 10, 44, 10);
+        flappyContext.fillRect(pipe.x - 3, pipe.gapTop + 72, 44, 10);
+      });
+      flappyContext.beginPath();
+      flappyContext.fillStyle = "#ffd65a";
+      flappyContext.arc(80, flappyBirdY, 11, 0, Math.PI * 2);
+      flappyContext.fill();
+      flappyContext.fillStyle = "#37251b";
+      flappyContext.beginPath(); flappyContext.arc(84, flappyBirdY - 3, 2, 0, Math.PI * 2); flappyContext.fill();
+      flappyContext.fillStyle = "#ff762e";
+      flappyContext.fillRect(88, flappyBirdY - 1, 9, 5);
+      flappyContext.fillStyle = "white"; flappyContext.font = "bold 20px system-ui"; flappyContext.textAlign = "center";
+      flappyContext.fillText(String(flappyScore), 160, 28);
+    }
+    function endFlappy() {
+      flappyActive = false;
+      cancelAnimationFrame(flappyAnimation);
+      flappyStatus.textContent = `Oups ! Score : ${flappyScore}. Touche l'écran ou rejoue.`;
+      flappyStart.textContent = "Rejouer";
+      if (flappyScore > flappyBest) {
+        flappyBest = flappyScore;
+        localStorage.setItem("lmm-flappy-best", String(flappyBest));
+        flappyRecord.textContent = `Record : ${flappyBest}`;
+      }
+      drawFlappy();
+    }
+    function runFlappyFrame() {
+      if (!flappyActive) return;
+      flappyFrame += 1;
+      flappyVelocity += .24;
+      flappyBirdY += flappyVelocity;
+      if (flappyFrame % 92 === 0) flappyPipes.push({ x: 330, gapTop: 35 + Math.random() * 105, passed: false });
+      flappyPipes.forEach(pipe => {
+        pipe.x -= 2.2;
+        if (!pipe.passed && pipe.x + 38 < 80) { pipe.passed = true; flappyScore += 1; }
+        if (80 + 10 > pipe.x && 80 - 10 < pipe.x + 38 &&
+            (flappyBirdY - 10 < pipe.gapTop || flappyBirdY + 10 > pipe.gapTop + 72)) endFlappy();
+      });
+      flappyPipes = flappyPipes.filter(pipe => pipe.x > -50);
+      if (flappyBirdY < 10 || flappyBirdY > 206) endFlappy();
+      if (!flappyActive) return;
+      drawFlappy();
+      flappyAnimation = requestAnimationFrame(runFlappyFrame);
+    }
+    function flap() {
+      if (!flappyActive) return;
+      flappyVelocity = -4.1;
+    }
+    flappyCanvas.addEventListener("pointerdown", flap);
+    document.addEventListener("keydown", event => {
+      if (!flappyActive || event.code !== "Space") return;
+      const target = event.target;
+      if (target instanceof HTMLElement && target.closest("input, textarea, select, [contenteditable='true']")) return;
+      event.preventDefault();
+      flap();
+    });
+    flappyStart.addEventListener("click", () => {
+      cancelAnimationFrame(flappyAnimation);
+      flappyBirdY = 110; flappyVelocity = 0; flappyPipes = []; flappyScore = 0; flappyFrame = 0;
+      flappyActive = true;
+      flappyStatus.textContent = "Envole-toi ! Touche pour battre des ailes.";
+      flappyStart.textContent = "En jeu…";
+      drawFlappy();
+      flappyAnimation = requestAnimationFrame(runFlappyFrame);
+    });
+    drawFlappy();
+
+    const arenaCanvas = document.querySelector("#arena-snake-canvas");
+    const arenaContext = arenaCanvas.getContext("2d");
+    const arenaStatus = document.querySelector("#arena-snake-status");
+    const arenaScoreLabel = document.querySelector("#arena-snake-score");
+    const arenaStart = document.querySelector("#arena-snake-start");
+    const arenaBoost = document.querySelector("#arena-snake-boost");
+    const arenaWidth = 2400;
+    const arenaHeight = 1800;
+    const arenaSegmentGap = 13;
+    const arenaColors = ["#ff6685", "#a886ff", "#ffad55", "#55baff", "#f06bd5", "#9bdd52", "#ff7952"];
+    let arenaBest = Number(localStorage.getItem("lmm-arena-snake-best") || 0);
+    let arenaPlayer;
+    let arenaBots = [];
+    let arenaFoods = [];
+    let arenaScore = 0;
+    let arenaActive = false;
+    let arenaBoosting = false;
+    let arenaBoostClock = 0;
+    let arenaTargetAngle = 0;
+    let arenaAnimation = 0;
+    let arenaLastFrame = 0;
+    arenaScoreLabel.textContent = `Orbes : 0 · Record : ${arenaBest}`;
+    function arenaRandomPoint(margin = 120) {
+      return {
+        x: margin + Math.random() * (arenaWidth - margin * 2),
+        y: margin + Math.random() * (arenaHeight - margin * 2)
+      };
+    }
+    function createArenaSnake(x, y, angle, color, length = 9) {
+      return {
+        color,
+        angle,
+        length,
+        body: Array.from({ length }, (_, index) => ({
+          x: x - Math.cos(angle) * index * arenaSegmentGap,
+          y: y - Math.sin(angle) * index * arenaSegmentGap
+        }))
+      };
+    }
+    function spawnArenaFood(point = arenaRandomPoint()) {
+      arenaFoods.push({ ...point, color: arenaColors[Math.floor(Math.random() * arenaColors.length)], radius: 3 + Math.random() * 2 });
+    }
+    function updateArenaBody(snake, dt, speed) {
+      const head = snake.body[0];
+      head.x += Math.cos(snake.angle) * speed * dt;
+      head.y += Math.sin(snake.angle) * speed * dt;
+      for (let i = 1; i < snake.body.length; i += 1) {
+        const previous = snake.body[i - 1];
+        const segment = snake.body[i];
+        const dx = previous.x - segment.x;
+        const dy = previous.y - segment.y;
+        const distance = Math.hypot(dx, dy) || 1;
+        const correction = Math.max(0, distance - arenaSegmentGap) / distance;
+        segment.x += dx * correction;
+        segment.y += dy * correction;
+      }
+    }
+    function drawArenaSnake(snake, isPlayer = false) {
+      for (let i = snake.body.length - 1; i >= 0; i -= 1) {
+        const segment = snake.body[i];
+        const radius = i === 0 ? 9 : 7.5;
+        arenaContext.beginPath();
+        arenaContext.fillStyle = snake.color;
+        arenaContext.shadowColor = snake.color;
+        arenaContext.shadowBlur = i === 0 ? 12 : 4;
+        arenaContext.arc(segment.x, segment.y, radius, 0, Math.PI * 2);
+        arenaContext.fill();
+      }
+      arenaContext.shadowBlur = 0;
+      const head = snake.body[0];
+      const eyeForwardX = Math.cos(snake.angle) * 3.5;
+      const eyeForwardY = Math.sin(snake.angle) * 3.5;
+      const eyeSideX = -Math.sin(snake.angle) * 3;
+      const eyeSideY = Math.cos(snake.angle) * 3;
+      arenaContext.fillStyle = "#fff";
+      for (const side of [-1, 1]) {
+        arenaContext.beginPath();
+        arenaContext.arc(head.x + eyeForwardX + eyeSideX * side, head.y + eyeForwardY + eyeSideY * side, 2.4, 0, Math.PI * 2);
+        arenaContext.fill();
+        arenaContext.beginPath();
+        arenaContext.fillStyle = "#20233b";
+        arenaContext.arc(head.x + eyeForwardX * 1.5 + eyeSideX * side, head.y + eyeForwardY * 1.5 + eyeSideY * side, 1.1, 0, Math.PI * 2);
+        arenaContext.fill();
+        arenaContext.fillStyle = "#fff";
+      }
+      if (isPlayer) {
+        arenaContext.strokeStyle = "rgba(255,255,255,.82)";
+        arenaContext.lineWidth = 1.5;
+        arenaContext.beginPath();
+        arenaContext.arc(head.x, head.y, 11, 0, Math.PI * 2);
+        arenaContext.stroke();
+      }
+    }
+    function drawArena() {
+      const playerHead = arenaPlayer.body[0];
+      const cameraX = playerHead.x - 160;
+      const cameraY = playerHead.y - 120;
+      arenaContext.save();
+      arenaContext.translate(-cameraX, -cameraY);
+      arenaContext.fillStyle = "#101522";
+      arenaContext.fillRect(cameraX, cameraY, 320, 240);
+      arenaContext.strokeStyle = "rgba(149,173,215,.12)";
+      arenaContext.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = Math.floor(cameraX / gridSize) * gridSize; x < cameraX + 320; x += gridSize) {
+        arenaContext.beginPath(); arenaContext.moveTo(x, cameraY); arenaContext.lineTo(x, cameraY + 240); arenaContext.stroke();
+      }
+      for (let y = Math.floor(cameraY / gridSize) * gridSize; y < cameraY + 240; y += gridSize) {
+        arenaContext.beginPath(); arenaContext.moveTo(cameraX, y); arenaContext.lineTo(cameraX + 320, y); arenaContext.stroke();
+      }
+      arenaContext.strokeStyle = "#fa6584";
+      arenaContext.lineWidth = 8;
+      arenaContext.strokeRect(0, 0, arenaWidth, arenaHeight);
+      arenaFoods.forEach(food => {
+        arenaContext.beginPath();
+        arenaContext.fillStyle = food.color;
+        arenaContext.shadowColor = food.color;
+        arenaContext.shadowBlur = 9;
+        arenaContext.arc(food.x, food.y, food.radius, 0, Math.PI * 2);
+        arenaContext.fill();
+      });
+      arenaContext.shadowBlur = 0;
+      arenaBots.forEach(bot => drawArenaSnake(bot));
+      drawArenaSnake(arenaPlayer, true);
+      arenaContext.restore();
+      arenaScoreLabel.textContent = `Orbes : ${arenaScore} · Record : ${arenaBest} · Longueur : ${arenaPlayer.length}`;
+    }
+    function resetArena() {
+      arenaPlayer = createArenaSnake(arenaWidth / 2, arenaHeight / 2, 0, "#35e7bf", 10);
+      arenaBots = Array.from({ length: 7 }, (_, index) => {
+        const point = index === 0
+          ? { x: arenaWidth / 2 + 145, y: arenaHeight / 2 + 70 }
+          : {
+            x: arenaWidth / 2 + (Math.random() - .5) * 620,
+            y: arenaHeight / 2 + (Math.random() - .5) * 460
+          };
+        const angle = index === 0 ? Math.PI / 2 : Math.random() * Math.PI * 2;
+        return createArenaSnake(point.x, point.y, angle, arenaColors[index], 8 + Math.floor(Math.random() * 5));
+      });
+      arenaFoods = [];
+      for (let i = 0; i < 130; i += 1) {
+        spawnArenaFood({
+          x: arenaWidth / 2 + (Math.random() - .5) * 760,
+          y: arenaHeight / 2 + (Math.random() - .5) * 560
+        });
+      }
+      for (let i = 0; i < 90; i += 1) spawnArenaFood();
+      arenaScore = 0;
+      arenaTargetAngle = 0;
+      arenaBoostClock = 0;
+      drawArena();
+    }
+    function endArena(message = "Tu as touché un serpent ou le bord.") {
+      arenaActive = false;
+      arenaBoosting = false;
+      cancelAnimationFrame(arenaAnimation);
+      arenaStatus.textContent = `${message} Score : ${arenaScore} orbes.`;
+      arenaStart.textContent = "Rejouer";
+      if (arenaScore > arenaBest) {
+        arenaBest = arenaScore;
+        localStorage.setItem("lmm-arena-snake-best", String(arenaBest));
+      }
+      drawArena();
+    }
+    function distanceBetween(first, second) {
+      return Math.hypot(first.x - second.x, first.y - second.y);
+    }
+    function moveAngleToward(current, target, maxTurn) {
+      const difference = Math.atan2(Math.sin(target - current), Math.cos(target - current));
+      return current + Math.max(-maxTurn, Math.min(maxTurn, difference));
+    }
+    function respawnArenaBot(bot) {
+      const point = arenaRandomPoint(260);
+      bot.body = createArenaSnake(point.x, point.y, Math.random() * Math.PI * 2, bot.color, 7).body;
+      bot.angle = Math.random() * Math.PI * 2;
+      for (let i = 0; i < 4; i += 1) spawnArenaFood({ ...point, x: point.x + (Math.random() - .5) * 50, y: point.y + (Math.random() - .5) * 50 });
+    }
+    function tickArena(now) {
+      if (!arenaActive) return;
+      const dt = Math.min((now - arenaLastFrame) / 1000 || 0, .04);
+      arenaLastFrame = now;
+      const playerHead = arenaPlayer.body[0];
+      arenaPlayer.angle = moveAngleToward(arenaPlayer.angle, arenaTargetAngle, 3.1 * dt);
+      const playerSpeed = arenaBoosting && arenaPlayer.length > 8 ? 156 : 104;
+      updateArenaBody(arenaPlayer, dt, playerSpeed);
+      if (arenaBoosting) {
+        arenaBoostClock += dt;
+        if (arenaBoostClock >= .32 && arenaPlayer.length > 8) {
+          arenaBoostClock = 0;
+          arenaPlayer.body.pop();
+        }
+      }
+      if (playerHead.x < 18 || playerHead.x > arenaWidth - 18 || playerHead.y < 18 || playerHead.y > arenaHeight - 18) {
+        endArena("Tu as touché la limite de l'arène.");
+        return;
+      }
+      if (arenaPlayer.body.slice(7).some(segment => distanceBetween(playerHead, segment) < 11)) {
+        endArena("Tu t'es mordu la queue.");
+        return;
+      }
+      for (let i = 0; i < arenaFoods.length; i += 1) {
+        if (distanceBetween(playerHead, arenaFoods[i]) < arenaFoods[i].radius + 9) {
+          arenaFoods.splice(i, 1);
+          arenaScore += 1;
+          arenaPlayer.length += 1;
+          arenaPlayer.body.push({ ...arenaPlayer.body[arenaPlayer.body.length - 1] });
+          spawnArenaFood();
+          break;
+        }
+      }
+      arenaBots.forEach(bot => {
+        const head = bot.body[0];
+        let nearestFood = arenaFoods[0];
+        for (const food of arenaFoods) {
+          if (distanceBetween(head, food) < distanceBetween(head, nearestFood)) nearestFood = food;
+        }
+        let targetAngle = Math.atan2(nearestFood.y - head.y, nearestFood.x - head.x);
+        const edgeMargin = 180;
+        if (head.x < edgeMargin || head.x > arenaWidth - edgeMargin || head.y < edgeMargin || head.y > arenaHeight - edgeMargin) {
+          targetAngle = Math.atan2(arenaHeight / 2 - head.y, arenaWidth / 2 - head.x);
+        }
+        bot.angle = moveAngleToward(bot.angle, targetAngle, 2.4 * dt);
+        updateArenaBody(bot, dt, 78);
+        if (bot.body[0].x < 18 || bot.body[0].x > arenaWidth - 18 || bot.body[0].y < 18 || bot.body[0].y > arenaHeight - 18 ||
+            bot.body.slice(6).some(segment => distanceBetween(bot.body[0], segment) < 9)) {
+          respawnArenaBot(bot);
+          return;
+        }
+        for (let i = 0; i < arenaFoods.length; i += 1) {
+          if (distanceBetween(bot.body[0], arenaFoods[i]) < arenaFoods[i].radius + 8) {
+            arenaFoods.splice(i, 1);
+            bot.length += 1;
+            bot.body.push({ ...bot.body[bot.body.length - 1] });
+            spawnArenaFood();
+            break;
+          }
+        }
+      });
+      if (arenaBots.some(bot => bot.body.slice(5).some(segment => distanceBetween(playerHead, segment) < 13))) {
+        endArena("Un serpent rival t'a coupé la route.");
+        return;
+      }
+      for (const bot of arenaBots) {
+        const head = bot.body[0];
+        if (distanceBetween(playerHead, head) < 17 && arenaPlayer.length <= bot.length) {
+          endArena("Un rival plus grand t'a éliminé.");
+          return;
+        }
+        if (distanceBetween(playerHead, head) < 17 && arenaPlayer.length > bot.length) {
+          arenaScore += 5;
+          arenaPlayer.length += 3;
+          for (let i = 0; i < 3; i += 1) arenaPlayer.body.push({ ...arenaPlayer.body[arenaPlayer.body.length - 1] });
+          respawnArenaBot(bot);
+        }
+      }
+      drawArena();
+      arenaAnimation = requestAnimationFrame(tickArena);
+    }
+    function setArenaTarget(clientX, clientY) {
+      const bounds = arenaCanvas.getBoundingClientRect();
+      const x = (clientX - bounds.left) * (320 / bounds.width) - 160;
+      const y = (clientY - bounds.top) * (240 / bounds.height) - 120;
+      if (Math.hypot(x, y) > 10) arenaTargetAngle = Math.atan2(y, x);
+    }
+    document.querySelectorAll("[data-arena-dir]").forEach(button => button.addEventListener("click", () => {
+      const directions = { up: -Math.PI / 2, down: Math.PI / 2, left: Math.PI, right: 0 };
+      arenaTargetAngle = directions[button.dataset.arenaDir];
+    }));
+    arenaCanvas.addEventListener("pointerdown", event => {
+      setArenaTarget(event.clientX, event.clientY);
+      arenaCanvas.setPointerCapture(event.pointerId);
+    });
+    arenaCanvas.addEventListener("pointermove", event => {
+      if (event.pointerType === "mouse" || event.buttons > 0) setArenaTarget(event.clientX, event.clientY);
+    });
+    arenaCanvas.addEventListener("pointerup", event => {
+      if (arenaCanvas.hasPointerCapture(event.pointerId)) arenaCanvas.releasePointerCapture(event.pointerId);
+    });
+    document.addEventListener("keydown", event => {
+      if (!arenaActive) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && target.closest("input, textarea, select, [contenteditable='true']")) return;
+      const key = event.key.toLowerCase();
+      const directions = { arrowup: -Math.PI / 2, z: -Math.PI / 2, w: -Math.PI / 2, arrowdown: Math.PI / 2, s: Math.PI / 2, arrowleft: Math.PI, q: Math.PI, a: Math.PI, arrowright: 0, d: 0 };
+      if (key in directions) { event.preventDefault(); arenaTargetAngle = directions[key]; }
+      if (key === "shift") arenaBoosting = true;
+    });
+    document.addEventListener("keyup", event => { if (event.key === "Shift") arenaBoosting = false; });
+    arenaBoost.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      arenaBoosting = true;
+      arenaBoost.setPointerCapture(event.pointerId);
+    });
+    arenaBoost.addEventListener("pointerup", () => { arenaBoosting = false; });
+    arenaBoost.addEventListener("pointercancel", () => { arenaBoosting = false; });
+    arenaBoost.addEventListener("lostpointercapture", () => { arenaBoosting = false; });
+    arenaStart.addEventListener("click", () => {
+      cancelAnimationFrame(arenaAnimation);
+      resetArena();
+      arenaActive = true;
+      arenaLastFrame = performance.now();
+      arenaStatus.textContent = "Ramasse les orbes lumineuses, grandis et évite les rivaux !";
+      arenaStart.textContent = "Recommencer";
+      arenaAnimation = requestAnimationFrame(tickArena);
+    });
+    resetArena();
 
     const cubeFaceOrder = ["U", "R", "F", "D", "L", "B"];
     const cubeFaces = [
